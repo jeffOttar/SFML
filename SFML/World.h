@@ -49,7 +49,7 @@ namespace GEX {
 	{
 	public:
 		World(sf::RenderWindow& window);
-		void								update(sf::Time dt);
+		void								update(sf::Time dt,CommandQueue& commands);
 		void								draw();
 
 		CommandQueue&						getCommandQueue();
@@ -60,6 +60,13 @@ namespace GEX {
 		void								adaptPlayerPosition();
 		void								adaptPlayerVelocity();
 
+		void								addEnemies();//add enemies spawn points for them to spawn at
+		void								addEnemy(AircraftType type, float relX, float relY);
+		void								spawnEnemies();
+
+		sf::FloatRect						getViewBounds() const;
+		sf::FloatRect						getBattlefieldBounds() const;
+
 	private: 
 		enum Layer
 		{
@@ -67,6 +74,21 @@ namespace GEX {
 			Air,
 			LayerCount
 		};
+
+		struct SpawnPoint
+		{
+			SpawnPoint(AircraftType _type, float _x, float _y) :
+				type(_type),
+				x(_x),
+				y(_y)
+			{
+			}
+
+			AircraftType type;
+			float x;
+			float y;
+		};
+
 
 	private:
 		sf::RenderWindow&					_window;//the order that they are declared in the .h is the order they are created in the initialization list
@@ -81,6 +103,9 @@ namespace GEX {
 		sf::Vector2f                        _spawnPosition;
 		float                               _scrollSpeed;
 		Aircraft*                           _playerAircraft;
+
+		std::vector<SpawnPoint>				_enemySpawnPoints;
+		std::vector<Aircraft*>				_activeEnemies;
 	};
 
 }

@@ -36,6 +36,7 @@
 
 namespace GEX {
 	class TextNode;
+	class CommandQueue;
 	enum class AircraftType
 	{
 		Eagle,
@@ -55,7 +56,7 @@ namespace GEX {
 		void				updateTexts();//update the mini health and missle display
 
 	protected:
-		void				updateCurrent(sf::Time dt) override;
+		void				updateCurrent(sf::Time dt, CommandQueue& commands) override;
 
 	private:
 		void				updateMovementPattern(sf::Time dt);

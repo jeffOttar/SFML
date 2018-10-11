@@ -29,6 +29,7 @@
 * NBCC Academic Integrity Policy (policy 1111)
 */
 #include "GameState.h"
+#include "CommandQueue.h"
 
 GameState::GameState(GEX::StateStack & stack, Context context) :
 	State(stack,context),
@@ -43,7 +44,7 @@ void GameState::draw()
 
 bool GameState::update(sf::Time dt)
 {
-	_world.update(dt);
+	_world.update(dt, _world.getCommandQueue());
 
 	//get the commands to handle real time input for the game
 	GEX::CommandQueue& commands = _world.getCommandQueue();

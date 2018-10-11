@@ -36,6 +36,7 @@
 
 class GameState : public GEX::State
 {
+	class CommandQueue;
 public:
 	GameState(GEX::StateStack& stack, Context context);
 

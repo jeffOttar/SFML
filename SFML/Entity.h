@@ -33,6 +33,7 @@
 #include "SceneNode.h"
 
 namespace GEX {
+	class CommandQueue;
 	class Entity : public SceneNode
 	{
 	public:
@@ -53,7 +54,7 @@ namespace GEX {
 		
 
 	protected:
-		virtual void		updateCurrent(sf::Time dt);//update the node at that current time (get and set pos)(what we do with the plane)
+		virtual void		updateCurrent(sf::Time dt, CommandQueue& commands);//update the node at that current time (get and set pos)(what we do with the plane)
 		
 
 

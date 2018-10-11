@@ -44,6 +44,7 @@ namespace GEX
 {
 	//forward declaration
 	struct Command;
+	class CommandQueue;
 
 	class SceneNode : public sf::Transformable, public sf::Drawable
 	{
@@ -60,17 +61,17 @@ namespace GEX
 		void					attachChild(Ptr child);
 		Ptr						detachChild(const SceneNode& ptr);//detach a child and return the unique ptr of that child
 		
-		void					update(sf::Time dt);//when calling update pass a delta time, update calls the updates
+		void					update(sf::Time dt, CommandQueue& commands);//when calling update pass a delta time, update calls the updates
 		void					onCommand(const Command& command, sf::Time dt);
 		virtual unsigned int	getCategory() const;
 
 		sf::Vector2f			getWorldPosition() const;
 		sf::Transform			getWorldTransform() const;
 
-	private:
+	protected:
 		//update the tree
-		virtual	void			updateCurrent(sf::Time dt);
-		void					updateChildren(sf::Time dt);
+		virtual	void			updateCurrent(sf::Time dt, CommandQueue& commands);
+		void					updateChildren(sf::Time dt, CommandQueue& commands);
 
 		//draw the tree
 		virtual void			draw(sf::RenderTarget& target, sf::RenderStates states) const;//overwriting the draw from the sf::drawable

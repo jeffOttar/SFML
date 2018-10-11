@@ -35,6 +35,7 @@ class GexState :
 	public GEX::State
 {
 public:
+	class CommandQueue;
 	GexState(GEX::StateStack& stack, Context context);
 
 	void						draw() override;

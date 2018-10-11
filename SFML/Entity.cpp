@@ -30,6 +30,7 @@
 */
 #include "Entity.h"
 #include <cassert>
+#include "CommandQueue.h"
 
 
 namespace GEX {
@@ -81,7 +82,7 @@ namespace GEX {
 	{
 		return (_hitpoints <= 0);
 	}
-	void Entity::updateCurrent(sf::Time dt)
+	void Entity::updateCurrent(sf::Time dt, CommandQueue& commands)
 	{
 		move(_velocity * dt.asSeconds());
 	}

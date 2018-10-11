@@ -50,7 +50,7 @@ namespace GEX {
 		_worldView.setCenter(_spawnPosition);
 	}
 
-	void World::update(sf::Time dt)
+	void World::update(sf::Time dt, CommandQueue& commands)
 	{
 		//scroll the world
 		_worldView.move(0,_scrollSpeed*dt.asSeconds());//move on the y at scroll speed
@@ -64,9 +64,10 @@ namespace GEX {
 		}
 
 		adaptPlayerVelocity();
-		_sceneGraph.update(dt);
+		_sceneGraph.update(dt,commands);
 		adaptPlayerPosition();
 		
+		spawnEnemies();
 	}
 
 	void World::adaptPlayerVelocity()
@@ -77,6 +78,67 @@ namespace GEX {
 		{
 			_playerAircraft->setVelocity(velocity / std::sqrt(2.f));
 		}
+	}
+
+	void World::addEnemies()
+	{
+		addEnemy(AircraftType::Raptor, 0.f, 200.f);
+		addEnemy(AircraftType::Raptor, 250.f, 200.f);
+		addEnemy(AircraftType::Raptor, -250.f, 200.f);
+
+		addEnemy(AircraftType::Avenger, -70.f, 400.f);
+		addEnemy(AircraftType::Avenger, 70.f, 400.f);
+
+		addEnemy(AircraftType::Avenger, -170.f, 200.f);
+		addEnemy(AircraftType::Avenger, 170.f, 200.f);
+
+		addEnemy(AircraftType::Avenger, -470.f, 600.f);
+		addEnemy(AircraftType::Avenger, 470.f, 600.f);
+
+		//sort the planes based on spawn point location 
+		std::sort(_enemySpawnPoints.begin(), _enemySpawnPoints.end(), 
+			[](SpawnPoint lhs, SpawnPoint rhs) 
+		{
+			return lhs.y < rhs.y;
+		});
+	}
+
+	void World::addEnemy(AircraftType type, float relX, float relY)
+	{
+		//relY and relX stand for relative x and y
+		SpawnPoint spawnPoint(type, _spawnPosition.x + relX, _spawnPosition.y - relY);
+		_enemySpawnPoints.push_back(spawnPoint);
+	}
+
+	void World::spawnEnemies()
+	{
+		//while there are enemies to spawn and the enemy is located within the battlefield
+		while (!_enemySpawnPoints.empty() && _enemySpawnPoints.back().y > getBattlefieldBounds().top)
+		{
+			SpawnPoint spawnPoint = _enemySpawnPoints.back();
+
+			std::unique_ptr<Aircraft> enemy(new Aircraft(spawnPoint.type, _textures));
+			enemy->setPosition(spawnPoint.x, spawnPoint.y);
+			enemy->setRotation(180.f);
+			//move the enemy to the scenegraph
+			_sceneLayers[Air]->attachChild(std::move(enemy));
+			//remove the spawned enemy from the list
+			_enemySpawnPoints.pop_back();
+		}
+	}
+
+	sf::FloatRect World::getViewBounds() const
+	{
+		return sf::FloatRect(_worldView.getCenter() - _worldView.getSize() / 2.f, _worldView.getSize());
+	}
+
+	sf::FloatRect World::getBattlefieldBounds() const
+	{
+		//get the view bounds and expand the height by 100 pixels and reduce the top by 100 pixels(+y goes down)
+		sf::FloatRect bounds = getViewBounds();
+		bounds.top -= 100.f;
+		bounds.height += 100.f;
+		return bounds;
 	}
 
 	void World::adaptPlayerPosition() 
@@ -143,33 +205,7 @@ namespace GEX {
 		_playerAircraft = leader.get();
 		_sceneLayers[Air]->attachChild(std::move(leader));
 
-		//add escort planes
-		std::unique_ptr<Aircraft> leftEscort(new Aircraft(AircraftType::Avenger, _textures));
-		leftEscort->setPosition(-80.f, 50.f);
-		_playerAircraft->attachChild(std::move(leftEscort));
-
-		std::unique_ptr<Aircraft> rightEscort(new Aircraft(AircraftType::Raptor, _textures));
-		rightEscort->setPosition(80.f, 50.f);
-		_playerAircraft->attachChild(std::move(rightEscort));
-
-		//add enemy planes
-		std::unique_ptr<Aircraft> enemy(new Aircraft(AircraftType::Avenger, _textures));
-		enemy->setPosition(_spawnPosition.x + 100.f, _spawnPosition.y - 600.f);
-		enemy->setVelocity(0.f, -_scrollSpeed);//speed is scrollspeed going down
-		enemy->setRotation(180);//rotate them the opposite way
-		_sceneLayers[Air]->attachChild(std::move(enemy));
-
-		enemy = std::unique_ptr<Aircraft>(new Aircraft(AircraftType::Raptor, _textures));
-		enemy->setPosition(_spawnPosition.x - 100.f, _spawnPosition.y - 600.f);
-		enemy->setVelocity(50.f, -_scrollSpeed);//speed is scrollspeed going down
-		enemy->setRotation(180);//rotate them the opposite way
-		_sceneLayers[Air]->attachChild(std::move(enemy));
-
-		enemy = std::unique_ptr<Aircraft>(new Aircraft(AircraftType::Eagle, _textures));
-		enemy->setPosition(_spawnPosition.x - 70.f, _spawnPosition.y - 600.f);
-		enemy->setVelocity(50.f, -_scrollSpeed);//speed is scrollspeed going down
-		enemy->setRotation(180);//rotate them the opposite way
-		_sceneLayers[Air]->attachChild(std::move(enemy));
+		addEnemies();
 
 	}
 

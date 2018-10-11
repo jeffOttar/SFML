@@ -31,6 +31,7 @@
 #include "GexState.h"
 #include "Utility.h"
 #include "FontManager.h"
+#include "CommandQueue.h"
 
 GexState::GexState(GEX::StateStack & stack, Context context):
 State(stack,context),

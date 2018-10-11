@@ -31,6 +31,7 @@
 #include "SceneNode.h"
 #include <cassert>
 #include "Command.h"
+#include "CommandQueue.h"
 
 namespace GEX {
 
@@ -65,10 +66,10 @@ namespace GEX {
 		return result;
 	}
 
-	void SceneNode::update(sf::Time dt)
+	void SceneNode::update(sf::Time dt, CommandQueue& commands)
 	{
-		updateCurrent(dt);
-		updateChildren(dt);
+		updateCurrent(dt,commands);
+		updateChildren(dt,commands);
 	}
 
 	void SceneNode::onCommand(const Command & command, sf::Time dt)
@@ -110,16 +111,16 @@ namespace GEX {
 		return transform;
 	}
 
-	void SceneNode::updateCurrent(sf::Time dt)
+	void SceneNode::updateCurrent(sf::Time dt, CommandQueue& commands)
 	{
 		//default it does nothing but it is also inherited
 	}
 
-	void SceneNode::updateChildren(sf::Time dt)
+	void SceneNode::updateChildren(sf::Time dt, CommandQueue& commands)
 	{
 		for (Ptr& child : _children)//this isnt const like draw as with draw you dont change the state but with update you do
 		{
-			child->update(dt);
+			child->update(dt,commands);
 		}
 	}
 

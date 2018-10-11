@@ -60,4 +60,12 @@ namespace GEX {
 		
 		return data;
 	}
+	std::map<Projectile::Type, ProjectileData> initializeProjectileData()
+	{
+		std::map<Projectile::Type, ProjectileData> data;
+
+		data[Projectile::Type::AlliedBullet].damage = 10;
+
+		return data;
+	}
 }

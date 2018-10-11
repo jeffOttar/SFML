@@ -37,6 +37,8 @@ namespace Category {
 		Scene				=1 << 0,//the << is a left bitshift --> this is 1 with 0 bitshift
 		PlayerAircraft		=1 << 1,
 		AlliedAircraft		=1 << 2,//this is with a 2 bitshift so 101 --> 10100 (the bit shifts to the left)
-		EnemyAircraft		=1 << 3//if the number goes past the limit 64bits then it drops it
+		EnemyAircraft		=1 << 3,//if the number goes past the limit 64bits then it drops it
+		EnemyProjectile		= 1 << 4,
+		AlliedProjectile	= 1 << 5,
 	};
 }

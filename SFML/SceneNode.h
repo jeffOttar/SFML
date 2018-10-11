@@ -52,8 +52,8 @@ namespace GEX
 		using Ptr = std::unique_ptr<SceneNode>;//a unique ptr of scene nodes
 
 	public:
-								SceneNode();
-		virtual					~SceneNode();
+								SceneNode(Category::Type category = Category::Type::None);
+		virtual					~SceneNode() = default;
 
 								SceneNode(const SceneNode&) = delete;//cant be copied with CopyCtr or Copy Assignment Operator
 		SceneNode&				operator=(SceneNode&) = delete;
@@ -81,6 +81,7 @@ namespace GEX
 	private:
 		SceneNode*				_parent;
 		std::vector<Ptr>		_children;
+		Category::Type			_category;
 	};
 
 }

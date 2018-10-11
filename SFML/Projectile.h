@@ -36,33 +36,33 @@
 
 namespace GEX {
 
-class Projectile : public Entity
-{
-public:
-	enum class Type
+	class Projectile : public Entity
 	{
-		AlliedBullet,
-		EnemyBullet, 
-		Missile
+	public:
+		enum class Type
+		{
+			AlliedBullet,
+			EnemyBullet,
+			Missile
+		};
+
+	public:
+		Projectile(Type type, const TextureManager& textures);
+
+		unsigned int			getCategory() const override;
+		//sf::FloatRect getBoundingRect() const override;//for collison detection
+
+		float					getMaxSpeed() const;
+		int						getDamage() const;
+
+	private:
+		void					updateCurrent(sf::Time dt, CommandQueue& commands) override;
+		void					drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+	private:
+		Type					_type;
+		sf::Sprite				_sprite;
+		sf::Vector2f			_targetDirection;
 	};
-
-public: 
-	Projectile(Type type, const TextureManager& textures);
-
-	unsigned int			getCategory() const override;
-	//sf::FloatRect getBoundingRect() const override;//for collison detection
-
-	float					getMaxSpeed() const;
-	int						getDamage() const;
-
-private :
-	void					updateCurrent(sf::Time dt, CommandQueue& commands) override;
-	void					drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
-
-private:
-	Type					_type;
-	sf::Sprite				_sprite;
-	sf::Vector2f			_targetDirection;
-};
 
 }

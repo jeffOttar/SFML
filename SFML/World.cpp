@@ -33,15 +33,15 @@
 
 namespace GEX {
 	World::World(sf::RenderWindow& window) :
-	_window(window),
-	_worldView(window.getDefaultView()),
-	_textures(),
-	_sceneGraph(),
-	_sceneLayers(),
-	_worldBounds(0.f,0.f, _worldView.getSize().x, 5000.f),//left top width height
-	_spawnPosition(_worldView.getSize().x / 2.f,_worldBounds.height - _worldView.getSize().y / 2.f),
-	_scrollSpeed(-50.f),
-	_playerAircraft(nullptr)
+		_window(window),
+		_worldView(window.getDefaultView()),
+		_textures(),
+		_sceneGraph(),
+		_sceneLayers(),
+		_worldBounds(0.f, 0.f, _worldView.getSize().x, 5000.f),//left top width height
+		_spawnPosition(_worldView.getSize().x / 2.f, _worldBounds.height - _worldView.getSize().y / 2.f),
+		_scrollSpeed(-50.f),
+		_playerAircraft(nullptr)
 	{
 		loadTextures();
 		buildScene();
@@ -53,8 +53,8 @@ namespace GEX {
 	void World::update(sf::Time dt, CommandQueue& commands)
 	{
 		//scroll the world
-		_worldView.move(0,_scrollSpeed*dt.asSeconds());//move on the y at scroll speed
-		
+		_worldView.move(0, _scrollSpeed*dt.asSeconds());//move on the y at scroll speed
+
 		_playerAircraft->setVelocity(0.f, _scrollSpeed);
 
 		//while the commandQueue is not empty send the next command to the scene graph
@@ -64,9 +64,9 @@ namespace GEX {
 		}
 
 		adaptPlayerVelocity();
-		_sceneGraph.update(dt,commands);
+		_sceneGraph.update(dt, commands);
 		adaptPlayerPosition();
-		
+
 		spawnEnemies();
 	}
 
@@ -74,7 +74,7 @@ namespace GEX {
 	{
 		sf::Vector2f velocity = _playerAircraft->getVelocity();
 
-		if(velocity.x != 0.f && velocity.y != 0.f)
+		if (velocity.x != 0.f && velocity.y != 0.f)
 		{
 			_playerAircraft->setVelocity(velocity / std::sqrt(2.f));
 		}
@@ -96,8 +96,8 @@ namespace GEX {
 		addEnemy(AircraftType::Avenger, 470.f, 600.f);
 
 		//sort the planes based on spawn point location 
-		std::sort(_enemySpawnPoints.begin(), _enemySpawnPoints.end(), 
-			[](SpawnPoint lhs, SpawnPoint rhs) 
+		std::sort(_enemySpawnPoints.begin(), _enemySpawnPoints.end(),
+			[](SpawnPoint lhs, SpawnPoint rhs)
 		{
 			return lhs.y < rhs.y;
 		});
@@ -141,9 +141,9 @@ namespace GEX {
 		return bounds;
 	}
 
-	void World::adaptPlayerPosition() 
+	void World::adaptPlayerPosition()
 	{
-		const float BORDER_DISTANCE=40.f;
+		const float BORDER_DISTANCE = 40.f;
 
 		sf::FloatRect viewBounds(_worldView.getCenter() - _worldView.getSize() / 2.f, //get the 0,0 of the bounds by getting center and then half of the height and width
 			_worldView.getSize());
@@ -177,6 +177,8 @@ namespace GEX {
 		_textures.load(GEX::TextureID::Raptor, "Media/Media/Textures/Raptor.png");
 		_textures.load(GEX::TextureID::Avenger, "Media/Media/Textures/Avenger.png");
 		_textures.load(GEX::TextureID::Desert, "Media/Media/Textures/Desert.png");
+		_textures.load(GEX::TextureID::Bullet, "Media/Media/Textures/Bullet.png");
+		_textures.load(GEX::TextureID::Missile, "Media/Media/Textures/Missile.png");
 	}
 
 	void World::buildScene()

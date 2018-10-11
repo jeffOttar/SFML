@@ -47,13 +47,13 @@ namespace GEX {
 	class Aircraft : public Entity
 	{
 	public:
-							Aircraft(AircraftType type, const TextureManager& textures);
-		
+		Aircraft(AircraftType type, const TextureManager& textures);
+
 		virtual void		drawCurrent(sf::RenderTarget& target, sf::RenderStates states)const override;
 
 		unsigned int		getCategory() const override;
 
-		void				updateTexts();//update the mini health and missle display
+		void				updateTexts();//update the mini health and Missile display
 
 	protected:
 		void				updateCurrent(sf::Time dt, CommandQueue& commands) override;
@@ -66,7 +66,7 @@ namespace GEX {
 		AircraftType		_type;
 		sf::Sprite			_sprite;
 		TextNode*			_healthDisplay;
-		TextNode*			_missleDisplay;
+		TextNode*			_missileDisplay;
 
 		float				_travelDistance;
 		std::size_t			_directionIndex;

@@ -47,18 +47,20 @@ namespace GEX {
 		MoveUp,
 		MoveDown,
 		RR,
-		RL
+		RL,
+		Fire,
+		LaunchMissile,
 	};
 
 	class PlayerControl
 	{
 	public:
-													PlayerControl();
+		PlayerControl();
 
 		void										handleEvent(const sf::Event& event, CommandQueue& commands);
 		void										handleRealTimeInput(CommandQueue& commands);
 
-	private: 
+	private:
 		void										initializeActions();
 		static bool									isRealtimeAction(Action action);
 

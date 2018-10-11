@@ -40,7 +40,8 @@ namespace GEX {
 		TitleScreen,
 		Desert,
 		Face,
-		Avenger
+		Avenger,
+		Bullet
 	};
 
 	enum class FontID

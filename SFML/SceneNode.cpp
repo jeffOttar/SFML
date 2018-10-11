@@ -35,14 +35,13 @@
 
 namespace GEX {
 
-	SceneNode::SceneNode() :
+	SceneNode::SceneNode(Category::Type category) :
 		_children(),
-		_parent(nullptr)
+		_parent(nullptr),
+		_category(category)
 	{
 	}
 
-	SceneNode::~SceneNode()
-	{}
 
 	void SceneNode::attachChild(Ptr child)
 	{

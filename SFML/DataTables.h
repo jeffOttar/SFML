@@ -56,6 +56,7 @@ namespace GEX
 		float						speed;
 		TextureID					texture;
 		std::vector<Direction>		directions;
+		sf::Time					fireInterval;
 	};
 
 	struct ProjectileData

@@ -32,13 +32,14 @@
 #include "Aircraft.h"
 #include "Command.h"
 #include "CommandQueue.h"
+#include <functional>
 
 namespace GEX {
 	struct AircraftMover
 	{
 	public:
 		AircraftMover(float vx, float vy) : //the constructor for the struct
-			velocity(vx, vy) 
+			velocity(vx, vy)
 		{
 		}
 		void operator() (Aircraft& aircraft, sf::Time dt) const
@@ -63,10 +64,9 @@ namespace GEX {
 		//_keyBindings[sf::Keyboard::W] = Action::MoveUp;
 		//_keyBindings[sf::Keyboard::S] = Action::MoveDown;
 
-		_keyBindings[sf::Keyboard::R] = Action::RR;
-		_keyBindings[sf::Keyboard::L] = Action::RL;
-		_actionBindings[Action::RL].action = derivedAction<Aircraft>([](Aircraft& node, sf::Time dt) {node.rotate(10.f); });
-		_actionBindings[Action::RR].action = derivedAction<Aircraft>([](Aircraft& node, sf::Time dt) {node.rotate(-10.f); });
+		_keyBindings[sf::Keyboard::Space] = Action::Fire;
+		_keyBindings[sf::Keyboard::M] = Action::LaunchMissile;
+
 		//set up action bindings
 		initializeActions();
 
@@ -74,9 +74,24 @@ namespace GEX {
 		{
 			pair.second.category = Category::PlayerAircraft;
 		}
+
+		//raptor rotation
+		_keyBindings[sf::Keyboard::R] = Action::RR;
+		_keyBindings[sf::Keyboard::L] = Action::RL;
+		_actionBindings[Action::RL].action = derivedAction<Aircraft>([](Aircraft& node, sf::Time dt) {node.rotate(10.f); });
+		_actionBindings[Action::RR].action = derivedAction<Aircraft>([](Aircraft& node, sf::Time dt) {node.rotate(-10.f); });
+		_actionBindings[Action::RL].category = Category::EnemyAircraft;
+		_actionBindings[Action::RR].category = Category::EnemyAircraft;
+
+		_actionBindings[Action::LaunchMissile].action = derivedAction<Aircraft>(std::bind(&Aircraft::launchMissile, std::placeholders::_1));
+		_actionBindings[Action::LaunchMissile].category = Category::PlayerAircraft;
+
+		_actionBindings[Action::Fire].action = derivedAction<Aircraft>(std::bind(&Aircraft::fire, std::placeholders::_1));
+		_actionBindings[Action::Fire].category = Category::PlayerAircraft;
+
 	}
 
-	///events are the one time events like firing a missle
+	///events are the one time events like firing a Missile
 	void PlayerControl::handleEvent(const sf::Event & event, CommandQueue & commands)
 	{
 		if (event.type == sf::Event::KeyPressed)
@@ -103,20 +118,20 @@ namespace GEX {
 	{
 		const float playerSpeed = 200.f;
 
-		_actionBindings[Action::MoveLeft].action = derivedAction<Aircraft>(AircraftMover(-playerSpeed,0.f));
+		_actionBindings[Action::MoveLeft].action = derivedAction<Aircraft>(AircraftMover(-playerSpeed, 0.f));
 		_actionBindings[Action::MoveRight].action = derivedAction<Aircraft>(AircraftMover(playerSpeed, 0.f));
-		_actionBindings[Action::MoveUp].action = derivedAction<Aircraft>(AircraftMover(0.f,-playerSpeed));
-		_actionBindings[Action::MoveDown].action = derivedAction<Aircraft>(AircraftMover(0.f,playerSpeed));
-	
+		_actionBindings[Action::MoveUp].action = derivedAction<Aircraft>(AircraftMover(0.f, -playerSpeed));
+		_actionBindings[Action::MoveDown].action = derivedAction<Aircraft>(AircraftMover(0.f, playerSpeed));
+
 	}
 	bool PlayerControl::isRealtimeAction(Action action)
 	{
 		switch (action)
 		{
-		case Action::MoveLeft: 
-		case Action::MoveRight: 
-		case Action::MoveUp: 
-		case Action::MoveDown: 
+		case Action::MoveLeft:
+		case Action::MoveRight:
+		case Action::MoveUp:
+		case Action::MoveDown:
 		case Action::RL:
 		case Action::RR:
 			return true;//if the action is any of the realtime actions return true
@@ -126,4 +141,4 @@ namespace GEX {
 		}
 	}
 
-}						  
+}

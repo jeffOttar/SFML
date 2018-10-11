@@ -48,7 +48,7 @@ _statisticsText(),
 _statisticsUpdateTime(),
 _statisticsNumFrames(0)
 {
-	//disable the ability to repeatedly press keys --> so missle cant be held down to repeatedly fire, you fire one per press
+	//disable the ability to repeatedly press keys --> so missile cant be held down to repeatedly fire, you fire one per press
 	_window.setKeyRepeatEnabled(false);
 
 	GEX::FontManager::getInstance().load(GEX::FontID::Main,"Media/Media/Sansation.ttf");

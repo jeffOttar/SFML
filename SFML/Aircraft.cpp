@@ -32,8 +32,10 @@
 #include "DataTables.h"
 #include "TextNode.h"
 #include <string>
+#include <memory>
 #include "Utility.h"
 #include "CommandQueue.h"
+#include "Category.h"
 
 namespace GEX {
 	namespace
@@ -45,14 +47,48 @@ namespace GEX {
 	GEX::Aircraft::Aircraft(AircraftType type, const TextureManager & textures)
 		: Entity(TABLE.at(type).hitpoints),//set the hitpoints depending on the type of plane
 		_type(type),
-		_sprite(textures.get(TABLE.at(type).texture))
+		_sprite(textures.get(TABLE.at(type).texture)),
+		_healthDisplay(nullptr),
+	_missileDisplay(nullptr),
+	_travelDistance(0.f),
+	_directionIndex(0),
+	_isFiring(false),
+	_fireRateLevel(1),
+	_fireSpreadLevel(1),
+	_fireCountdown(sf::Time::Zero),
+	_fireCommand(),
+	_isLaunchingMissile(false),
+	_missileAmmo(3)
 	{
-		sf::FloatRect bounds = _sprite.getLocalBounds();
-		_sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+		//set up commands
+		_fireCommand.category = Category::AirSceneLayer;
+		_fireCommand.action = [this, &textures](SceneNode& node, sf::Time dt)
+		{
+			createBullets(node, textures);
+		};
+
+		//launch missile is an event
+		_launchMissileCommand.category = Category::AirSceneLayer;
+		_launchMissileCommand.action = [this, &textures](SceneNode& node, sf::Time dt)
+		{
+			createProjectile(node, Projectile::Type::Missile, 0.f, 0.5f, textures);
+		};
+
+		/*_dropPickupCommand.category = Category::AirSceneLayer;
+		_dropPickupCommand.action = [this, &textures](SceneNode& node, sf::Time dt)
+		{
+			createPickup(node, textures);
+		};*/
+
+		centerOrigin(_sprite);
 
 		std::unique_ptr<TextNode> health(new TextNode(""));
 		_healthDisplay = health.get();
 		attachChild(std::move(health));
+
+		std::unique_ptr<TextNode> missile(new TextNode(""));
+		_missileDisplay = missile.get();
+		attachChild(std::move(missile));
 
 		updateTexts();
 	}
@@ -69,7 +105,7 @@ namespace GEX {
 			return Category::PlayerAircraft;
 			break;
 		case GEX::AircraftType::Raptor:
-			Category::AlliedAircraft;
+			Category::EnemyAircraft;
 			break;
 		default:
 			return Category::EnemyAircraft;
@@ -82,11 +118,28 @@ namespace GEX {
 		_healthDisplay->setPosition(0.f, 50.f);
 		_healthDisplay->setRotation(-getRotation());
 	}
+	void Aircraft::fire()
+	{
+		if (TABLE.at(_type).fireInterval != sf::Time::Zero) {
+			_isFiring = true;
+		}
+	}
+	void Aircraft::launchMissile()
+	{
+		
+			_isLaunchingMissile = true;
+		
+	}
+	bool Aircraft::isAllied() const
+	{
+		return _type== AircraftType::Eagle;//eagles are only allies
+	}
 	void Aircraft::updateCurrent(sf::Time dt, CommandQueue& commands)
 	{
 		updateMovementPattern(dt);
 		Entity::updateCurrent(dt,commands);
 		updateTexts();
+		checkProjectileLaunch(dt, commands);
 	}
 	void Aircraft::updateMovementPattern(sf::Time dt)
 	{
@@ -116,5 +169,80 @@ namespace GEX {
 	float Aircraft::getMaxSpeed() const
 	{
 		return TABLE.at(_type).speed;
+	}
+	void Aircraft::createBullets(SceneNode & node, const TextureManager & textures)
+	{
+		//if allied set to be ally otherwise set to be enemy bullet
+		Projectile::Type type = isAllied() ? Projectile::Type::AlliedBullet : Projectile::Type::EnemyBullet;
+
+		//change amount of bullets based on spread level
+		switch (_fireSpreadLevel)
+		{
+		case 1:
+			createProjectile(node, type, 0.0f, 0.5f, textures);//centered on x and .5f up the plane
+			break;
+
+		case 2:
+			//two bullets
+			createProjectile(node, type, -0.33f, 0.33f, textures);//bullets .33 to the left and right of plane
+			createProjectile(node, type, 0.33f, 0.33f, textures);
+			break;
+
+		case 3:
+			//three bullets
+			createProjectile(node, type, -0.5f, 0.33f, textures);//bullet .5 to the left and right with a bullet in the center
+			createProjectile(node, type, 0.0f, 0.5f, textures);
+			createProjectile(node, type, 0.5f, 0.33f, textures);
+			break;
+		}
+	}
+	void Aircraft::createProjectile(SceneNode & node, Projectile::Type type, float xOffset, float yOffset,
+		const TextureManager& textures)
+	{
+		std::unique_ptr<Projectile> projectile(new Projectile(type, textures));
+
+		sf::Vector2f offset(xOffset * _sprite.getGlobalBounds().width, yOffset * _sprite.getGlobalBounds().height);
+		sf::Vector2f velocity(0, projectile->getMaxSpeed());
+
+		//if allied it goes up, enemies go down 
+		float sign = isAllied() ? -1.f : 1.f;
+
+		//the offset is the distance from the firing plane
+		projectile->setPosition(getWorldPosition() + offset * sign);
+		projectile->setVelocity(velocity * sign);
+		node.attachChild(std::move(projectile));
+
+	}
+	void Aircraft::checkProjectileLaunch(sf::Time dt, CommandQueue & commands)
+	{
+		//enemies that fire are always firing
+		if (!isAllied())
+		{
+			fire();
+		}
+
+		//check if trying to fire and if allowed to fire with the interval
+		if (_isFiring && _fireCountdown <= sf::Time::Zero)
+		{
+			commands.push(_fireCommand);
+			_fireCountdown += TABLE.at(_type).fireInterval / (_fireRateLevel + 1.f);
+			_isFiring = false;
+		}
+		else if (_fireCountdown > sf::Time::Zero)//tried to fire but not allowed yet due to firing cooldown
+		{
+			_fireCountdown -= dt;
+		}
+
+		//missile firing
+		if (_isLaunchingMissile)
+		{
+			//if you have missiles to launch then launch the missile and decreace the ammo amount
+			if (_missileAmmo > 0)
+			{
+				commands.push(_launchMissileCommand);
+				_isLaunchingMissile = false;
+				_missileAmmo--;
+			}
+		}
 	}
 }

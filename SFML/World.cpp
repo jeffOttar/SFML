@@ -82,18 +82,18 @@ namespace GEX {
 
 	void World::addEnemies()
 	{
-		addEnemy(AircraftType::Raptor, 0.f, 200.f);
+		/*addEnemy(AircraftType::Raptor, 0.f, 200.f);
 		addEnemy(AircraftType::Raptor, 250.f, 200.f);
-		addEnemy(AircraftType::Raptor, -250.f, 200.f);
+		addEnemy(AircraftType::Raptor, -250.f, 200.f);*/
 
-		addEnemy(AircraftType::Avenger, -70.f, 400.f);
-		addEnemy(AircraftType::Avenger, 70.f, 400.f);
+		/*addEnemy(AircraftType::Avenger, -70.f, 400.f);
+		addEnemy(AircraftType::Avenger, 70.f, 400.f);*/
 
 		addEnemy(AircraftType::Avenger, -170.f, 200.f);
 		addEnemy(AircraftType::Avenger, 170.f, 200.f);
 
-		addEnemy(AircraftType::Avenger, -470.f, 600.f);
-		addEnemy(AircraftType::Avenger, 470.f, 600.f);
+		/*addEnemy(AircraftType::Avenger, -470.f, 600.f);
+		addEnemy(AircraftType::Avenger, 470.f, 600.f);*/
 
 		//sort the planes based on spawn point location 
 		std::sort(_enemySpawnPoints.begin(), _enemySpawnPoints.end(),
@@ -185,7 +185,10 @@ namespace GEX {
 	{
 		//initialize layers
 		for (int i = 0; i < LayerCount; i++) {
-			SceneNode::Ptr layer(new SceneNode());
+			Category::Type category = (i == Air) ? Category::Type::AirSceneLayer : Category::Type::None;
+			SceneNode::Ptr layer(new SceneNode(category));
+			
+			//SceneNode::Ptr layer(new SceneNode());
 			_sceneLayers.push_back(layer.get());
 			_sceneGraph.attachChild(std::move(layer));
 		}

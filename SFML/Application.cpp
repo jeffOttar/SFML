@@ -78,12 +78,8 @@ void Application::run()
 
 		if (timeSinceLastUpdate > TimePerFrame)//this loop if for the time if it is above spf and catches the update up to it
 		{
-			
-			
 			updateStats(TimePerFrame);
 			update(TimePerFrame);
-
-			
 		}
 		else
 		{

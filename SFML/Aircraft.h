@@ -33,6 +33,8 @@
 
 #include "TextureManager.h"
 #include "Entity.h"
+#include "Command.h"
+#include "Projectile.h"
 
 namespace GEX {
 	class TextNode;
@@ -55,12 +57,23 @@ namespace GEX {
 
 		void				updateTexts();//update the mini health and Missile display
 
+		void				fire();
+		void				launchMissile();
+
+		bool				isAllied() const;
+
 	protected:
 		void				updateCurrent(sf::Time dt, CommandQueue& commands) override;
 
 	private:
 		void				updateMovementPattern(sf::Time dt);
 		float				getMaxSpeed() const;
+
+		void				createBullets(SceneNode& node, const TextureManager& textures);
+		void				createProjectile(SceneNode& node, Projectile::Type type, float xOffset, float yOffset, 
+												const TextureManager& textures);
+
+		void				checkProjectileLaunch(sf::Time dt, CommandQueue& commands);
 
 	private:
 		AircraftType		_type;
@@ -70,5 +83,18 @@ namespace GEX {
 
 		float				_travelDistance;
 		std::size_t			_directionIndex;
+
+		bool				_isFiring;
+
+		int					_fireRateLevel;//fire 1 2 or 3 
+		int					_fireSpreadLevel;
+
+		sf::Time			_fireCountdown;
+
+		Command				_fireCommand;
+		Command				_launchMissileCommand;
+
+		bool				_isLaunchingMissile;
+		int					_missileAmmo;
 	};
 }

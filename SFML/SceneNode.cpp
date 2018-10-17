@@ -32,6 +32,7 @@
 #include <cassert>
 #include "Command.h"
 #include "CommandQueue.h"
+#include <algorithm>
 
 namespace GEX {
 
@@ -88,8 +89,7 @@ namespace GEX {
 
 	unsigned int SceneNode::getCategory() const
 	{
-		//return Category::Scene;
-		return 0;
+		return _category;
 	}
 
 	sf::Vector2f SceneNode::getWorldPosition() const
@@ -102,7 +102,7 @@ namespace GEX {
 		sf::Transform transform = sf::Transform::Identity;//this is a constant part of sf transform definition(it is a transform that doesnt change anything) it is a starting point
 		//it allows us to multiply in additional transformations
 
-		for (const SceneNode* node = this; node != nullptr; node->_parent)//start pointing at self and go until at end of nodes
+		for (const SceneNode* node = this; node != nullptr; node = node->_parent)//start pointing at self and go until at end of nodes
 		{
 			transform = node->getTransform() * transform;
 		}

@@ -40,5 +40,6 @@ namespace Category {
 		EnemyAircraft		=1 << 3,//if the number goes past the limit 64bits then it drops it
 		EnemyProjectile		= 1 << 4,
 		AlliedProjectile	= 1 << 5,
+		AirSceneLayer		= 1 << 6,
 	};
 }

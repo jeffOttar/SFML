@@ -63,11 +63,13 @@ namespace GEX {
 		}
 		);
 		assert(found != _children.end());
+		if (found != _children.end()) {
+			Ptr result = std::move(*found);//found is an iterator so dereference it to get the value/object
+			_children.erase(found);//erase based on iterator
 
-		Ptr result = std::move(*found);//found is an iterator so dereference it to get the value/object
-		_children.erase(found);//erase based on iterator
-
-		return result;
+			return result;
+		}
+		return nullptr;
 	}
 
 	void SceneNode::update(sf::Time dt, CommandQueue& commands)

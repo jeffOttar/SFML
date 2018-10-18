@@ -38,6 +38,9 @@
 #include "Aircraft.h"
 #include "CommandQueue.h"
 
+#include <memory>
+#include <iostream>
+
 namespace sf
 {
 	class RenderWindow;

@@ -32,9 +32,6 @@
 #include "Pickup.h"
 #include "Projectile.h"
 
-#include <cmath>
-#include <algorithm>
-
 
 
 namespace GEX {
@@ -49,7 +46,8 @@ namespace GEX {
 		_scrollSpeed(-50.f),
 		_playerAircraft(nullptr),
 		_enemySpawnPoints(),
-		_activeEnemies()
+		_activeEnemies(),
+		_commandQueue()
 	{
 		loadTextures();
 		buildScene();
@@ -65,7 +63,7 @@ namespace GEX {
 
 		_playerAircraft->setVelocity(0.f, _scrollSpeed);
 
-		//guideMissiles();
+		guideMissiles();
 
 		//while the commandQueue is not empty send the next command to the scene graph
 		while (!_commandQueue.isEmpty())
@@ -73,10 +71,10 @@ namespace GEX {
 			_sceneGraph.onCommand(_commandQueue.pop(), dt);
 		}
 
-		adaptPlayerVelocity();
-
+		
 		handleCollisions();
 
+		adaptPlayerVelocity();
 		_sceneGraph.update(dt, commands);
 		adaptPlayerPosition();
 
@@ -132,7 +130,7 @@ namespace GEX {
 
 			std::unique_ptr<Aircraft> enemy(new Aircraft(spawnPoint.type, _textures));
 			enemy->setPosition(spawnPoint.x, spawnPoint.y);
-			enemy->setRotation(180.f);
+			enemy->setRotation(180);
 			//move the enemy to the scenegraph
 			_sceneLayers[Air]->attachChild(std::move(enemy));
 			//remove the spawned enemy from the list
@@ -156,6 +154,7 @@ namespace GEX {
 
 	void World::guideMissiles()
 	{
+		
 		//build list of active enemies
 		Command enemyCollector;
 		enemyCollector.category = Category::Type::EnemyAircraft;//everything with category enemy with execute this command
@@ -181,7 +180,7 @@ namespace GEX {
 			//start the min distance as the max float and when you find a smaller value set that as minimum distance
 			Aircraft* closestEnemy = nullptr;
 
-			for (Aircraft* e : _activeEnemies)
+			for (auto* e : _activeEnemies)
 			{
 				auto d = distance(missile, *e);
 				if (d < minDistance)
@@ -317,10 +316,8 @@ namespace GEX {
 	{
 		//initialize layers
 		for (int i = 0; i < LayerCount; i++) {
-			Category::Type category = (i == Air) ? Category::Type::AirSceneLayer : Category::Type::None;
+			auto category = (i == Air) ? Category::Type::AirSceneLayer : Category::Type::None;
 			SceneNode::Ptr layer(new SceneNode(category));
-			
-			//SceneNode::Ptr layer(new SceneNode());
 			_sceneLayers.push_back(layer.get());
 			_sceneGraph.attachChild(std::move(layer));
 		}

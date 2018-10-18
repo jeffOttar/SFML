@@ -55,6 +55,7 @@ namespace GEX {
 		void apply(Aircraft& player);
 
 	private:
+		void		updateCurrent(sf::Time dt, CommandQueue& commands) override;
 		void		drawCurrent(sf::RenderTarget & target, sf::RenderStates states)const override;
 
 	private:

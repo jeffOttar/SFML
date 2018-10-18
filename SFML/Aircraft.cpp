@@ -105,7 +105,7 @@ namespace GEX {
 			return Category::Type::PlayerAircraft;
 			break;
 		case AircraftType::Raptor:
-			Category::Type::EnemyAircraft;
+			return Category::Type::EnemyAircraft;
 			break;
 		case AircraftType::Avenger:
 			return Category::EnemyAircraft;
@@ -255,8 +255,8 @@ namespace GEX {
 		if (_isFiring && _fireCountdown <= sf::Time::Zero)
 		{
 			commands.push(_fireCommand);
-			_fireCountdown += TABLE.at(_type).fireInterval / (_fireRateLevel + 1.f);
 			_isFiring = false;
+			_fireCountdown += TABLE.at(_type).fireInterval / (_fireRateLevel + 1.f);
 		}
 		else if (_fireCountdown > sf::Time::Zero)//tried to fire but not allowed yet due to firing cooldown
 		{

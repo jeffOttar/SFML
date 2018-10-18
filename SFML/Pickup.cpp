@@ -31,6 +31,7 @@
 
 #include "Pickup.h"
 #include "DataTables.h"
+#include "Utility.h"
 
 
 namespace GEX {
@@ -43,6 +44,7 @@ namespace GEX {
 		_type(type),
 		_sprite(textures.get(TABLE.at(type).texture))
 	{
+		centerOrigin(_sprite);
 	}
 	unsigned int Pickup::getCategory() const
 	{
@@ -55,6 +57,10 @@ namespace GEX {
 	void Pickup::apply(Aircraft & player)
 	{
 		TABLE.at(_type).action(player);
+	}
+	void Pickup::updateCurrent(sf::Time dt, CommandQueue & commands)
+	{
+		Entity::updateCurrent(dt, commands);
 	}
 	void Pickup::drawCurrent(sf::RenderTarget & target, sf::RenderStates states) const
 	{

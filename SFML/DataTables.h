@@ -32,6 +32,7 @@
 #include "TextureManager.h"
 #include "Aircraft.h"
 #include "Projectile.h"
+#include "Pickup.h"
 
 #include <map>
 #include <vector>
@@ -61,14 +62,22 @@ namespace GEX
 
 	struct ProjectileData
 	{
-		int damage;
-		float speed;
-		TextureID texture;
+		int				damage;
+		float			speed;
+		TextureID		texture;
+	};
+
+	struct PickupData
+	{
+		std::function<void(Aircraft&)>		action;
+		TextureID							texture;
 	};
 
 	//declaring a function that returns a map of aircrafttype and data
 	std::map<AircraftType, AircraftData> initializeAircraftData();
 
 	std::map<Projectile::Type, ProjectileData> initializeProjectileData();
+
+	std::map<Pickup::Type, PickupData> initializePickupData();
 	
 }

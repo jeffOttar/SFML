@@ -29,6 +29,12 @@
 * NBCC Academic Integrity Policy (policy 1111)
 */
 #include "World.h"
+#include "Pickup.h"
+#include "Projectile.h"
+
+#include <cmath>
+#include <algorithm>
+
 
 
 namespace GEX {
@@ -41,7 +47,9 @@ namespace GEX {
 		_worldBounds(0.f, 0.f, _worldView.getSize().x, 5000.f),//left top width height
 		_spawnPosition(_worldView.getSize().x / 2.f, _worldBounds.height - _worldView.getSize().y / 2.f),
 		_scrollSpeed(-50.f),
-		_playerAircraft(nullptr)
+		_playerAircraft(nullptr),
+		_enemySpawnPoints(),
+		_activeEnemies()
 	{
 		loadTextures();
 		buildScene();
@@ -57,6 +65,8 @@ namespace GEX {
 
 		_playerAircraft->setVelocity(0.f, _scrollSpeed);
 
+		//guideMissiles();
+
 		//while the commandQueue is not empty send the next command to the scene graph
 		while (!_commandQueue.isEmpty())
 		{
@@ -64,6 +74,9 @@ namespace GEX {
 		}
 
 		adaptPlayerVelocity();
+
+		handleCollisions();
+
 		_sceneGraph.update(dt, commands);
 		adaptPlayerPosition();
 
@@ -82,18 +95,18 @@ namespace GEX {
 
 	void World::addEnemies()
 	{
-		/*addEnemy(AircraftType::Raptor, 0.f, 200.f);
+		addEnemy(AircraftType::Raptor, 0.f, 200.f);
 		addEnemy(AircraftType::Raptor, 250.f, 200.f);
-		addEnemy(AircraftType::Raptor, -250.f, 200.f);*/
+		addEnemy(AircraftType::Raptor, -250.f, 200.f);
+		
+		addEnemy(AircraftType::Avenger, -70.f, 400.f);//these start at end of screen
+		addEnemy(AircraftType::Avenger, 70.f, 400.f);
 
-		/*addEnemy(AircraftType::Avenger, -70.f, 400.f);
-		addEnemy(AircraftType::Avenger, 70.f, 400.f);*/
+		//addEnemy(AircraftType::Avenger, -170.f, 600.f);
+		//addEnemy(AircraftType::Avenger, 170.f, 600.f);
 
-		addEnemy(AircraftType::Avenger, -170.f, 200.f);
-		addEnemy(AircraftType::Avenger, 170.f, 200.f);
-
-		/*addEnemy(AircraftType::Avenger, -470.f, 600.f);
-		addEnemy(AircraftType::Avenger, 470.f, 600.f);*/
+		addEnemy(AircraftType::Avenger, -140.f, 600.f);
+		addEnemy(AircraftType::Avenger, 140.f, 600.f);
 
 		//sort the planes based on spawn point location 
 		std::sort(_enemySpawnPoints.begin(), _enemySpawnPoints.end(),
@@ -115,7 +128,7 @@ namespace GEX {
 		//while there are enemies to spawn and the enemy is located within the battlefield
 		while (!_enemySpawnPoints.empty() && _enemySpawnPoints.back().y > getBattlefieldBounds().top)
 		{
-			SpawnPoint spawnPoint = _enemySpawnPoints.back();
+			auto spawnPoint = _enemySpawnPoints.back();
 
 			std::unique_ptr<Aircraft> enemy(new Aircraft(spawnPoint.type, _textures));
 			enemy->setPosition(spawnPoint.x, spawnPoint.y);
@@ -140,6 +153,121 @@ namespace GEX {
 		bounds.height += 100.f;
 		return bounds;
 	}
+
+	void World::guideMissiles()
+	{
+		//build list of active enemies
+		Command enemyCollector;
+		enemyCollector.category = Category::Type::EnemyAircraft;//everything with category enemy with execute this command
+		enemyCollector.action = derivedAction<Aircraft>([this](Aircraft& enemy, sf::Time dt) 
+		{
+			if (!enemy.isDestroyed())//dont add destroyed enemies to list
+			{
+				_activeEnemies.push_back(&enemy);
+			}
+		});
+
+		Command missileGuider;
+		missileGuider.category = Category::Type::AlliedProjectile;//the derived action is used for safe downcasts
+		missileGuider.action = derivedAction<Projectile>([this](Projectile& missile, sf::Time dt)
+		{
+			//ignore bullets only guide missiles
+			if (!missile.isGuided())
+			{
+				return;//if it is a bullet return
+			}
+
+			float minDistance = std::numeric_limits<float>::max();
+			//start the min distance as the max float and when you find a smaller value set that as minimum distance
+			Aircraft* closestEnemy = nullptr;
+
+			for (Aircraft* e : _activeEnemies)
+			{
+				auto d = distance(missile, *e);
+				if (d < minDistance)
+				{
+					minDistance = d;
+					closestEnemy = e;
+				}
+			}
+			if (closestEnemy)
+			{
+				missile.guidedTowards(closestEnemy->getWorldPosition());
+			}
+		});
+
+		_commandQueue.push(enemyCollector);
+		_commandQueue.push(missileGuider);
+		_activeEnemies.clear();
+	}
+
+	/**
+	*check if they have matching categories or if they match but are in the wrong order
+	*
+	*/
+	bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Category::Type type2)
+	{
+		unsigned int category1 = colliders.first->getCategory();
+		unsigned int category2 = colliders.second->getCategory();
+
+		// check if they match categories
+		if (type1 & category1 && type2 & category2)
+		{
+			return true;
+		}
+		else if (type1 & category2 && type2 & category1)//check if they match but in the wrong order
+		{
+			std::swap(colliders.first, colliders.second);//swap them the right way
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	void World::handleCollisions()
+	{
+		//build list of colliding pairs
+		std::set<SceneNode::Pair> collisionPairs;
+		_sceneGraph.checkSceneCollision(_sceneGraph, collisionPairs);
+
+
+		for (SceneNode::Pair pair : collisionPairs)
+		{
+			//check for matching categories for the player and enemy two enemies colliding does nothing
+			if (matchesCategories(pair, Category::Type::PlayerAircraft, Category::Type::EnemyAircraft))
+			{
+				//if there is a player and enemy colliding then cast them into variables
+				auto& player = static_cast<Aircraft&>(*(pair.first));
+				auto& enemy = static_cast<Aircraft&>(*(pair.second));
+
+				//when a collsion occurs the player loses health amounting to enemy health
+				player.damage(enemy.getHitPoints());
+				enemy.destroy();
+			}
+			else if (matchesCategories(pair, Category::Type::PlayerAircraft, Category::Type::Pickup))
+			{
+				auto& player = static_cast<Aircraft&>(*pair.first);
+				auto& pickup = static_cast<Pickup&>(*pair.second);
+
+				// Apply pickup effect to player, destroy projectile
+				pickup.apply(player);
+				pickup.destroy();
+			}
+			else if ((matchesCategories(pair, Category::Type::EnemyAircraft, Category::Type::AlliedProjectile))
+				|| (matchesCategories(pair, Category::Type::PlayerAircraft, Category::Type::EnemyProjectile)))
+			{
+				auto& aircraft = static_cast<Aircraft&>(*pair.first);
+				auto& projectile = static_cast<Projectile&>(*pair.second);
+
+				//projectile damages aircraft and then is destroyed
+				aircraft.damage(projectile.getDamage());
+				projectile.destroy();
+			}
+		}
+	}
+
 
 	void World::adaptPlayerPosition()
 	{
@@ -179,6 +307,10 @@ namespace GEX {
 		_textures.load(GEX::TextureID::Desert, "Media/Media/Textures/Desert.png");
 		_textures.load(GEX::TextureID::Bullet, "Media/Media/Textures/Bullet.png");
 		_textures.load(GEX::TextureID::Missile, "Media/Media/Textures/Missile.png");
+		_textures.load(GEX::TextureID::FireRate, "Media/Media/Textures/FireRate.png");
+		_textures.load(GEX::TextureID::FireSpread, "Media/Media/Textures/FireSpread.png");
+		_textures.load(GEX::TextureID::MissileRefill, "Media/Media/Textures/MissileRefill.png");
+		_textures.load(GEX::TextureID::HealthRefill, "Media/Media/Textures/HealthRefill.png");
 	}
 
 	void World::buildScene()

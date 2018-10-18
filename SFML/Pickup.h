@@ -28,40 +28,38 @@
 * I certify that this work is solely my own and complies with
 * NBCC Academic Integrity Policy (policy 1111)
 */
-#pragma once
 
-#include "SceneNode.h"
+#pragma once
+#include "Entity.h"
+#include "TextureManager.h"
+#include "Aircraft.h"
 
 namespace GEX {
-	class CommandQueue;
-	class Entity : public SceneNode
+	class Pickup : public Entity
 	{
 	public:
-		explicit			Entity(int points);
+		enum class Type
+		{
+			HealthRefill,
+			MissileRefill,
+			FireSpread,
+			FireRate,
+		};
 
-		void                setVelocity(sf::Vector2f velocity);
-		void                setVelocity(float vx, float vy);
-		sf::Vector2f        getVelocity() const;
+	public:
+		Pickup(Type type, const TextureManager& textures);
+		~Pickup() = default;
 
-		void				accelerate(sf::Vector2f velocity);
-		void				accelerate(float vx, float vy);
-
-		int					getHitPoints() const;
-		void				damage(int points);
-		void				repair(int points);
-		void				destroy();//set hit points to zero 
-		bool				isDestroyed() const override;
-		
-
-	protected:
-		virtual void		updateCurrent(sf::Time dt, CommandQueue& commands);//update the node at that current time (get and set pos)(what we do with the plane)
-		
-
+		unsigned int getCategory() const override;
+		sf::FloatRect getBoundingBox()const override;
+		void apply(Aircraft& player);
 
 	private:
-		sf::Vector2f        _velocity;
-		int					_hitpoints;
-		
-	};
-}
+		void		drawCurrent(sf::RenderTarget & target, sf::RenderStates states)const override;
 
+	private:
+		sf::Sprite			_sprite;
+		Type				_type;
+	};
+
+}

@@ -28,40 +28,37 @@
 * I certify that this work is solely my own and complies with
 * NBCC Academic Integrity Policy (policy 1111)
 */
-#pragma once
 
-#include "SceneNode.h"
+#include "Pickup.h"
+#include "DataTables.h"
+
 
 namespace GEX {
-	class CommandQueue;
-	class Entity : public SceneNode
+	namespace
 	{
-	public:
-		explicit			Entity(int points);
-
-		void                setVelocity(sf::Vector2f velocity);
-		void                setVelocity(float vx, float vy);
-		sf::Vector2f        getVelocity() const;
-
-		void				accelerate(sf::Vector2f velocity);
-		void				accelerate(float vx, float vy);
-
-		int					getHitPoints() const;
-		void				damage(int points);
-		void				repair(int points);
-		void				destroy();//set hit points to zero 
-		bool				isDestroyed() const override;
-		
-
-	protected:
-		virtual void		updateCurrent(sf::Time dt, CommandQueue& commands);//update the node at that current time (get and set pos)(what we do with the plane)
-		
-
-
-	private:
-		sf::Vector2f        _velocity;
-		int					_hitpoints;
-		
-	};
+		const std::map<Pickup::Type, PickupData>TABLE = initializePickupData();
+	}
+	Pickup::Pickup(Type type, const TextureManager & textures):
+		Entity(1),
+		_type(type),
+		_sprite(textures.get(TABLE.at(type).texture))
+	{
+	}
+	unsigned int Pickup::getCategory() const
+	{
+		return Category::Type::Pickup;
+	}
+	sf::FloatRect Pickup::getBoundingBox() const
+	{
+		return getWorldTransform().transformRect(_sprite.getGlobalBounds());
+	}
+	void Pickup::apply(Aircraft & player)
+	{
+		TABLE.at(_type).action(player);
+	}
+	void Pickup::drawCurrent(sf::RenderTarget & target, sf::RenderStates states) const
+	{
+		target.draw(_sprite, states);
+	}
 }
 

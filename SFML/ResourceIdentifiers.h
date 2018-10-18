@@ -41,7 +41,11 @@ namespace GEX {
 		Desert,
 		Face,
 		Avenger,
-		Bullet
+		Bullet,
+		HealthRefill,
+		MissileRefill,
+		FireSpread,
+		FireRate,
 	};
 
 	enum class FontID

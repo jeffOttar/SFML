@@ -61,14 +61,14 @@ namespace GEX {
 	_missileAmmo(3)
 	{
 		//set up commands
-		_fireCommand.category = Category::AirSceneLayer;
+		_fireCommand.category = Category::Type::AirSceneLayer;
 		_fireCommand.action = [this, &textures](SceneNode& node, sf::Time dt)
 		{
 			createBullets(node, textures);
 		};
 
 		//launch missile is an event
-		_launchMissileCommand.category = Category::AirSceneLayer;
+		_launchMissileCommand.category = Category::Type::AirSceneLayer;
 		_launchMissileCommand.action = [this, &textures](SceneNode& node, sf::Time dt)
 		{
 			createProjectile(node, Projectile::Type::Missile, 0.f, 0.5f, textures);
@@ -101,14 +101,17 @@ namespace GEX {
 	{
 		switch (_type)
 		{
-		case GEX::AircraftType::Eagle:
-			return Category::PlayerAircraft;
+		case AircraftType::Eagle:
+			return Category::Type::PlayerAircraft;
 			break;
-		case GEX::AircraftType::Raptor:
-			Category::EnemyAircraft;
+		case AircraftType::Raptor:
+			Category::Type::EnemyAircraft;
+			break;
+		case AircraftType::Avenger:
+			return Category::EnemyAircraft;
 			break;
 		default:
-			return Category::EnemyAircraft;
+			return Category::Type::None;
 			break;
 		}
 	}
@@ -117,6 +120,11 @@ namespace GEX {
 		_healthDisplay->setString(std::to_string(getHitPoints()) + " HP");
 		_healthDisplay->setPosition(0.f, 50.f);
 		_healthDisplay->setRotation(-getRotation());
+		if (_type == AircraftType::Eagle)
+		{
+			_missileDisplay->setString("Missile: " + std::to_string(_missileAmmo));
+			_missileDisplay->setPosition(0.f, 70.f);
+		}
 	}
 	void Aircraft::fire()
 	{
@@ -133,6 +141,28 @@ namespace GEX {
 	bool Aircraft::isAllied() const
 	{
 		return _type== AircraftType::Eagle;//eagles are only allies
+	}
+	void Aircraft::increaceFireRate()
+	{
+		if (_fireRateLevel < 10)
+		{
+			_fireRateLevel++;
+		}
+	}
+	void Aircraft::increaceFireSpread()
+	{
+		if (_fireSpreadLevel < 3)
+		{
+			_fireSpreadLevel++;
+		}
+	}
+	void Aircraft::collectMissiles(unsigned int count)
+	{
+		_missileAmmo += count;
+	}
+	sf::FloatRect Aircraft::getBoundingBox() const
+	{
+		return getWorldTransform().transformRect(_sprite.getGlobalBounds());
 	}
 	void Aircraft::updateCurrent(sf::Time dt, CommandQueue& commands)
 	{

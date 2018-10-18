@@ -52,10 +52,10 @@ namespace GEX {
 	unsigned int Projectile::getCategory() const
 	{
 		if (_type == Type::EnemyBullet) {
-			return Category::EnemyProjectile;
+			return Category::Type::EnemyProjectile;
 		}
 		else {
-			return Category::AlliedProjectile;
+			return Category::Type::AlliedProjectile;
 		}
 	}
 	float Projectile::getMaxSpeed() const
@@ -66,8 +66,37 @@ namespace GEX {
 	{
 		return TABLE.at(_type).damage;
 	}
+	bool Projectile::isGuided() const
+	{
+		return (_type == Type::Missile);
+	}
+	void Projectile::guidedTowards(sf::Vector2f position)
+	{
+		assert(isGuided());//assert it is a missile
+		//make a unit vector out of the position of target - your position
+		_targetDirection = unitVector(position - getWorldPosition());
+	}
+	sf::FloatRect Projectile::getBoundingBox() const
+	{
+		return getWorldTransform().transformRect(_sprite.getGlobalBounds());
+	}
 	void Projectile::updateCurrent(sf::Time dt, CommandQueue& commands)
 	{
+		if (isGuided())
+		{
+			const float APPROACH_RATE = 40.f;//missile approach rate
+
+			//unit vector is direction
+			auto newVelocity = unitVector(APPROACH_RATE * dt.asSeconds() *
+				_targetDirection + getVelocity());
+
+			newVelocity *= getMaxSpeed();
+			setVelocity(newVelocity);
+
+			auto angle = std::atan2(newVelocity.y, newVelocity.x);
+			setRotation(toDegree(angle) + 90.f);
+		}
+
 		Entity::updateCurrent(dt, commands);
 	}
 	void Projectile::drawCurrent(sf::RenderTarget & target, sf::RenderStates states) const

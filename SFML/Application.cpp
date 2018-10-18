@@ -59,7 +59,7 @@ _statisticsNumFrames(0)
 
 	_statisticsText.setFont(GEX::FontManager::getInstance().get(GEX::FontID::Main));
 	_statisticsText.setPosition(5.f, 5.f);
-	_statisticsText.setCharacterSize(15.0f);
+	_statisticsText.setCharacterSize(15);
 	_statisticsText.setString("Frames / Second = \nTime / Update =");
 
 	registerStates();

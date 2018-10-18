@@ -33,6 +33,10 @@
 #include "Command.h"
 #include "CommandQueue.h"
 #include <algorithm>
+#include "Utility.h"
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 
 namespace GEX {
 
@@ -110,6 +114,54 @@ namespace GEX {
 		return transform;
 	}
 
+	sf::FloatRect SceneNode::getBoundingBox() const
+	{
+		return sf::FloatRect();//it is overriden for when the object has bounding box
+	}
+
+	void SceneNode::drawBoundingBox(sf::RenderTarget & target, sf::RenderStates states) const
+	{
+		sf::FloatRect rect = getBoundingBox();
+
+		sf::RectangleShape box;
+		box.setPosition(sf::Vector2f(rect.left, rect.top));
+		box.setSize(sf::Vector2f(rect.width, rect.height));
+		box.setFillColor(sf::Color::Transparent);
+		box.setOutlineColor(sf::Color::Cyan);
+		box.setOutlineThickness(1.f);
+
+		target.draw(box);
+	}
+
+	void SceneNode::checkSceneCollision(SceneNode & rootNode, std::set<Pair>& collisionPair)
+	{
+		checkNodeCollision(rootNode, collisionPair);//check for node collision on the item
+
+		//for every child in the root node children check for collision
+		for (Ptr& c : rootNode._children) {
+			checkSceneCollision(*c, collisionPair);
+		}
+	}
+
+	void SceneNode::checkNodeCollision(SceneNode & node, std::set<Pair>& collisionPair)
+	{
+		//check to make sure you are not comparing yourself to yourself and then check if collision between yourself and new node
+		if (this != &node && collision(*this, node) && !isDestroyed() && !node.isDestroyed()) {
+			collisionPair.insert(std::minmax(this, &node));//insert a pair of pointers into the collisionPair if there is one
+		}
+
+		//check for collisions for each child
+		for (Ptr& c : _children) {
+			c->checkNodeCollision(node, collisionPair);
+		}
+	}
+
+	bool SceneNode::isDestroyed() const
+	{
+		//by default you do not need to destroy the object
+		return false;
+	}
+
 	void SceneNode::updateCurrent(sf::Time dt, CommandQueue& commands)
 	{
 		//default it does nothing but it is also inherited
@@ -130,6 +182,8 @@ namespace GEX {
 
 		drawCurrent(target, states);
 		drawChildren(target, states);
+
+		drawBoundingBox(target, states);
 	}
 
 	void SceneNode::drawCurrent(sf::RenderTarget & target, sf::RenderStates states) const
@@ -143,6 +197,17 @@ namespace GEX {
 		{
 			child->draw(target, states);
 		}
+	}
+
+	float distance(const SceneNode & lhs, const SceneNode & rhs)
+	{
+		return length(lhs.getWorldPosition() - rhs.getWorldPosition());
+	}
+
+	bool collision(const SceneNode & lhs, const SceneNode & rhs)
+	{
+		//if one bounding box intersects another
+		return lhs.getBoundingBox().intersects(rhs.getBoundingBox());
 	}
 
 }

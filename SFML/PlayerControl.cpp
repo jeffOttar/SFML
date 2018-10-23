@@ -52,7 +52,8 @@ namespace GEX {
 		sf::Vector2f velocity;//this is accessible
 	};
 
-	PlayerControl::PlayerControl()
+	PlayerControl::PlayerControl() :
+		_currentMissionStatus(MissionStatus::MissionRunning)
 	{
 		//set up key bindings
 		_keyBindings[sf::Keyboard::Left] = Action::MoveLeft;
@@ -105,6 +106,14 @@ namespace GEX {
 				commands.push(_actionBindings[pair.second]);
 			}
 		}
+	}
+	void PlayerControl::setMissionStatus(MissionStatus status)
+	{
+		_currentMissionStatus = status;
+	}
+	MissionStatus PlayerControl::getMissionStatus() const
+	{
+		return _currentMissionStatus;
 	}
 	void PlayerControl::initializeActions()
 	{

@@ -33,6 +33,8 @@
 #include <SFML/Graphics/Text.hpp>
 
 #include <cassert>
+#include <random>
+#include <cmath>
 
 
 #define _USE_MATH_DEFINES//this is because some compilers dont see cmath
@@ -40,6 +42,19 @@
 #ifndef M_PI
 #define M_PI (3.14159265)//if pi doesnt exist then use this for pi
 #endif
+
+namespace
+{
+	//create a function that returns a default random engine
+	std::default_random_engine createRandomEngine()
+	{
+		auto seed = static_cast<unsigned long>(std::time(nullptr));
+		return std::default_random_engine(seed);
+	}
+
+	auto RandomEngine = createRandomEngine();
+}
+
 
 void centerOrigin(sf::Sprite & sprite)
 {
@@ -66,7 +81,8 @@ float toRadian(float degree)
 
 int randomInt(int exclusiveMax)
 {
-	return 1;
+	std::uniform_int_distribution<> distr(0, exclusiveMax - 1);
+	return distr(RandomEngine);
 }
 
 float length(sf::Vector2f vector)

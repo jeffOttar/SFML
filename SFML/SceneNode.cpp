@@ -158,10 +158,25 @@ namespace GEX {
 		}
 	}
 
+	void SceneNode::removeWrecks()
+	{
+		//remove children if they are marked for removal
+		auto wreckfieldBegin = std::remove_if(_children.begin(), _children.end(), std::mem_fn(&SceneNode::isMarkedForRemoval));
+		_children.erase(wreckfieldBegin, _children.end());
+
+		//call function recursively to itterate through the children
+		std::for_each(_children.begin(), _children.end(), std::mem_fn(&SceneNode::removeWrecks));
+	}
+
 	bool SceneNode::isDestroyed() const
 	{
 		//by default you do not need to destroy the object
 		return false;
+	}
+
+	bool SceneNode::isMarkedForRemoval() const
+	{
+		return isDestroyed();
 	}
 
 	void SceneNode::updateCurrent(sf::Time dt, CommandQueue& commands)

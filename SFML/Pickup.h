@@ -44,6 +44,7 @@ namespace GEX {
 			MissileRefill,
 			FireSpread,
 			FireRate,
+			Count,
 		};
 
 	public:

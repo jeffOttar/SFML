@@ -84,7 +84,9 @@ namespace GEX {
 	{
 		if (isGuided())
 		{
-			const float APPROACH_RATE = 40.f;//missile approach rate
+			//const float APPROACH_RATE = 40.f;//missile approach rate//to slow
+			//const float APPROACH_RATE = 400.f;//missile approach rate//to fast
+			const float APPROACH_RATE = 100.f;//missile approach rate
 
 			//unit vector is direction
 			auto newVelocity = unitVector(APPROACH_RATE * dt.asSeconds() *

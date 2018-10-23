@@ -38,6 +38,7 @@ namespace GEX {
 		Game, 
 		Pause,
 		Gex,
+		GameOver,
 		None
 	};
 }

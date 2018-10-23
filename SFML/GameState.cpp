@@ -46,6 +46,18 @@ bool GameState::update(sf::Time dt)
 {
 	_world.update(dt, _world.getCommandQueue());
 
+	//check if player won or died
+	if (!_world.hasAlivePlayer())
+	{
+		_player.setMissionStatus(GEX::MissionStatus::MissionFailure);
+		requestStackPush(GEX::StateID::GameOver);
+	}
+	else if (_world.hasPlayerReachedEnd())
+	{
+		_player.setMissionStatus(GEX::MissionStatus::MissionSuccess);
+		requestStackPush(GEX::StateID::GameOver);
+	}
+
 	//get the commands to handle real time input for the game
 	GEX::CommandQueue& commands = _world.getCommandQueue();
 	_player.handleRealTimeInput(commands);

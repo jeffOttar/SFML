@@ -33,14 +33,17 @@
 namespace Category {
 	enum Type
 	{
-		None				=0,
-		Scene				=1 << 0,//the << is a left bitshift --> this is 1 with 0 bitshift
-		PlayerAircraft		=1 << 1,
-		AlliedAircraft		=1 << 2,//this is with a 2 bitshift so 101 --> 10100 (the bit shifts to the left)
-		EnemyAircraft		=1 << 3,//if the number goes past the limit 64bits then it drops it
-		EnemyProjectile		= 1 << 4,
-		AlliedProjectile	= 1 << 5,
-		AirSceneLayer		= 1 << 6,
-		Pickup				= 1 << 7,
+		None = 0,
+		Scene = 1 << 0,//the << is a left bitshift --> this is 1 with 0 bitshift
+		PlayerAircraft = 1 << 1,
+		AlliedAircraft = 1 << 2,//this is with a 2 bitshift so 101 --> 10100 (the bit shifts to the left)
+		EnemyAircraft = 1 << 3,//if the number goes past the limit 64bits then it drops it
+		EnemyProjectile = 1 << 4,
+		AlliedProjectile = 1 << 5,
+		AirSceneLayer = 1 << 6,
+		Pickup = 1 << 7,
+
+		Aircraft = PlayerAircraft | AlliedAircraft | EnemyAircraft,//used to include all ORed objects into one definition
+		Projectile = EnemyProjectile | AlliedProjectile,
 	};
 }

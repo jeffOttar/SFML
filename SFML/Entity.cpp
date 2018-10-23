@@ -72,7 +72,7 @@ namespace GEX {
 	void Entity::repair(int points)
 	{
 		assert(points > 0);//guarantee that points are positive
-		_hitpoints -= points;
+		_hitpoints += points;
 	}
 	void Entity::destroy()
 	{
@@ -81,6 +81,10 @@ namespace GEX {
 	bool Entity::isDestroyed() const
 	{
 		return (_hitpoints <= 0);
+	}
+	void Entity::remove()
+	{
+		destroy();
 	}
 	void Entity::updateCurrent(sf::Time dt, CommandQueue& commands)
 	{

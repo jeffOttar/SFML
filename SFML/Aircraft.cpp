@@ -57,8 +57,11 @@ namespace GEX {
 	_fireSpreadLevel(1),
 	_fireCountdown(sf::Time::Zero),
 	_fireCommand(),
+	_launchMissileCommand(),
+	_dropPickupCommand(),
+	_isMarkedForRemoval(false),
 	_isLaunchingMissile(false),
-	_missileAmmo(3)
+	_missileAmmo(30)
 	{
 		//set up commands
 		_fireCommand.category = Category::Type::AirSceneLayer;
@@ -74,11 +77,11 @@ namespace GEX {
 			createProjectile(node, Projectile::Type::Missile, 0.f, 0.5f, textures);
 		};
 
-		/*_dropPickupCommand.category = Category::AirSceneLayer;
+		_dropPickupCommand.category = Category::AirSceneLayer;
 		_dropPickupCommand.action = [this, &textures](SceneNode& node, sf::Time dt)
 		{
 			createPickup(node, textures);
-		};*/
+		};
 
 		centerOrigin(_sprite);
 
@@ -164,9 +167,21 @@ namespace GEX {
 	{
 		return getWorldTransform().transformRect(_sprite.getGlobalBounds());
 	}
+	bool Aircraft::isMarkedForRemoval() const
+	{
+		return _isMarkedForRemoval;
+	}
 	void Aircraft::updateCurrent(sf::Time dt, CommandQueue& commands)
 	{
 		updateMovementPattern(dt);
+		if (isDestroyed() && !isAllied())
+		{
+			checkPickupDrop(commands);
+
+			_isMarkedForRemoval = true;
+			return;
+		}
+
 		Entity::updateCurrent(dt,commands);
 		updateTexts();
 		checkProjectileLaunch(dt, commands);
@@ -200,7 +215,24 @@ namespace GEX {
 	{
 		return TABLE.at(_type).speed;
 	}
-	void Aircraft::createBullets(SceneNode & node, const TextureManager & textures)
+	void Aircraft::checkPickupDrop(CommandQueue & commands)
+	{
+		if (!isAllied() && randomInt(3) == 0)
+		{
+			commands.push(_dropPickupCommand);
+		}
+	}
+	void Aircraft::createPickup(SceneNode & node, const TextureManager & textures) const
+	{
+		auto type = static_cast<Pickup::Type>(randomInt((static_cast<int>(Pickup::Type::Count))));
+
+		std::unique_ptr<Pickup> pickup(new Pickup(type, textures));
+		pickup->setPosition(getWorldPosition());
+		//pickup->setVelocity(0.f, 1.f);
+		pickup->setVelocity(0.f, 0.f);
+		node.attachChild(std::move(pickup));
+	}
+	void Aircraft::createBullets(SceneNode & node, const TextureManager & textures)const
 	{
 		//if allied set to be ally otherwise set to be enemy bullet
 		Projectile::Type type = isAllied() ? Projectile::Type::AlliedBullet : Projectile::Type::EnemyBullet;
@@ -227,7 +259,7 @@ namespace GEX {
 		}
 	}
 	void Aircraft::createProjectile(SceneNode & node, Projectile::Type type, float xOffset, float yOffset,
-		const TextureManager& textures)
+		const TextureManager& textures)const
 	{
 		std::unique_ptr<Projectile> projectile(new Projectile(type, textures));
 

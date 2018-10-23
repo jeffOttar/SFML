@@ -51,6 +51,7 @@ namespace GEX {
 		void				repair(int points);
 		void				destroy();//set hit points to zero 
 		bool				isDestroyed() const override;
+		void				remove();
 		
 
 	protected:

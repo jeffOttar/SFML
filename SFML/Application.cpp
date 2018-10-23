@@ -34,6 +34,7 @@
 #include "MenuState.h"
 #include "TitleState.h"
 #include "GexState.h"
+#include "GameOverState.h"
 #include "FontManager.h"
 
 const sf::Time Application::TimePerFrame = sf::seconds(1.0f / 60.f);//seconds per frame for 60fps
@@ -171,4 +172,5 @@ void Application::registerStates()
 	_stateStack.registerState<GameState>(GEX::StateID::Game);
 	_stateStack.registerState<PauseState>(GEX::StateID::Pause);
 	_stateStack.registerState<GexState>(GEX::StateID::Gex);
+	_stateStack.registerState<GameOverState>(GEX::StateID::GameOver);
 }

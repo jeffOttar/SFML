@@ -60,9 +60,9 @@ namespace GEX {
 	{
 		//scroll the world
 		_worldView.move(0, _scrollSpeed*dt.asSeconds());//move on the y at scroll speed
-
 		_playerAircraft->setVelocity(0.f, _scrollSpeed);
 
+		destroyEntitiesOutOfView();
 		guideMissiles();
 
 		//while the commandQueue is not empty send the next command to the scene graph
@@ -73,6 +73,7 @@ namespace GEX {
 
 		
 		handleCollisions();
+		_sceneGraph.removeWrecks();
 
 		adaptPlayerVelocity();
 		_sceneGraph.update(dt, commands);
@@ -100,11 +101,25 @@ namespace GEX {
 		addEnemy(AircraftType::Avenger, -70.f, 400.f);//these start at end of screen
 		addEnemy(AircraftType::Avenger, 70.f, 400.f);
 
-		//addEnemy(AircraftType::Avenger, -170.f, 600.f);
-		//addEnemy(AircraftType::Avenger, 170.f, 600.f);
+		addEnemy(AircraftType::Avenger, -170.f, 1000.f);
+		addEnemy(AircraftType::Avenger, 170.f, 1000.f);
 
 		addEnemy(AircraftType::Avenger, -140.f, 600.f);
 		addEnemy(AircraftType::Avenger, 140.f, 600.f);
+
+		//additional enemies
+		addEnemy(AircraftType::Raptor, 0.f, 1200.f);
+		addEnemy(AircraftType::Raptor, 250.f, 1200.f);
+		addEnemy(AircraftType::Raptor, -250.f, 1200.f);
+
+		addEnemy(AircraftType::Avenger, -70.f, 1400.f);//these start at end of screen
+		addEnemy(AircraftType::Avenger, 70.f, 1400.f);
+
+		addEnemy(AircraftType::Avenger, -170.f, 1800.f);
+		addEnemy(AircraftType::Avenger, 170.f, 1800.f);
+
+		addEnemy(AircraftType::Avenger, -140.f, 1600.f);
+		addEnemy(AircraftType::Avenger, 140.f, 1600.f);
 
 		//sort the planes based on spawn point location 
 		std::sort(_enemySpawnPoints.begin(), _enemySpawnPoints.end(),
@@ -267,6 +282,21 @@ namespace GEX {
 		}
 	}
 
+	void World::destroyEntitiesOutOfView()
+	{
+		Command command;
+		command.category = Category::Type::Projectile | Category::Type::EnemyAircraft | Category::Type::Pickup;
+		command.action = derivedAction<Entity>([this](Entity& e, sf::Time)
+		{
+			//destroy if it is not in the area
+			if (!getBattlefieldBounds().intersects(e.getBoundingBox())) {
+				e.destroy();
+			}
+		});
+
+		_commandQueue.push(command);
+	}
+
 
 	void World::adaptPlayerPosition()
 	{
@@ -296,6 +326,16 @@ namespace GEX {
 	CommandQueue & World::getCommandQueue()
 	{
 		return _commandQueue;
+	}
+
+	bool World::hasAlivePlayer() const
+	{
+		return !_playerAircraft->isDestroyed();
+	}
+
+	bool World::hasPlayerReachedEnd() const
+	{
+		return !_worldBounds.contains(_playerAircraft->getPosition());
 	}
 
 	void World::loadTextures()

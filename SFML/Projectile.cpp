@@ -33,6 +33,8 @@
 #include "DataTables.h"
 #include "Utility.h"
 #include "Category.h"
+#include "EmitterNode.h"
+
 
 
 namespace GEX {
@@ -44,10 +46,24 @@ namespace GEX {
 	Projectile::Projectile(Type type, const TextureManager & textures) :
 		Entity(1),
 		_type(type),
-		_sprite(textures.get(TABLE.at(type).texture)),
+		_sprite(textures.get(TABLE.at(type).texture), TABLE.at(type).textureRect),
 		_targetDirection()
 	{
 		centerOrigin(_sprite);
+
+		//add a particle system for the missiles
+		if (isGuided())
+		{
+			std::unique_ptr<EmitterNode> smoke(new EmitterNode(Particle::Type::Smoke));
+			smoke->setPosition(0.f, getBoundingBox().height / 2.f);
+			attachChild(std::move(smoke));
+
+			std::unique_ptr<EmitterNode> fire(new EmitterNode(Particle::Type::Propellant));
+			fire->setPosition(0.f, getBoundingBox().height / 2.f);
+			//attaches this to the missile itself/this object (only missiles due to if statement)
+			attachChild(std::move(fire));
+		}
+
 	}
 	unsigned int Projectile::getCategory() const
 	{
@@ -86,7 +102,8 @@ namespace GEX {
 		{
 			//const float APPROACH_RATE = 40.f;//missile approach rate//to slow
 			//const float APPROACH_RATE = 400.f;//missile approach rate//to fast
-			const float APPROACH_RATE = 100.f;//missile approach rate
+			//const float APPROACH_RATE = 200.f;//missile approach rate
+			const float APPROACH_RATE = 1000.f;//super heat seeking
 
 			//unit vector is direction
 			auto newVelocity = unitVector(APPROACH_RATE * dt.asSeconds() *

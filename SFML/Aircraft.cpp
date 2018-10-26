@@ -47,7 +47,7 @@ namespace GEX {
 	GEX::Aircraft::Aircraft(AircraftType type, const TextureManager & textures)
 		: Entity(TABLE.at(type).hitpoints),//set the hitpoints depending on the type of plane
 		_type(type),
-		_sprite(textures.get(TABLE.at(type).texture)),
+		_sprite(textures.get(TABLE.at(type).texture), TABLE.at(type).textureRect),
 		_healthDisplay(nullptr),
 	_missileDisplay(nullptr),
 	_travelDistance(0.f),

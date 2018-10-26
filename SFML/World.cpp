@@ -31,6 +31,7 @@
 #include "World.h"
 #include "Pickup.h"
 #include "Projectile.h"
+#include "ParticleNode.h"
 
 
 
@@ -147,7 +148,7 @@ namespace GEX {
 			enemy->setPosition(spawnPoint.x, spawnPoint.y);
 			enemy->setRotation(180);
 			//move the enemy to the scenegraph
-			_sceneLayers[Air]->attachChild(std::move(enemy));
+			_sceneLayers[UpperAir]->attachChild(std::move(enemy));
 			//remove the spawned enemy from the list
 			_enemySpawnPoints.pop_back();
 		}
@@ -340,30 +341,38 @@ namespace GEX {
 
 	void World::loadTextures()
 	{
-		_textures.load(GEX::TextureID::Eagle, "Media/Media/Textures/Eagle.png");
-		_textures.load(GEX::TextureID::Raptor, "Media/Media/Textures/Raptor.png");
-		_textures.load(GEX::TextureID::Avenger, "Media/Media/Textures/Avenger.png");
-		_textures.load(GEX::TextureID::Desert, "Media/Media/Textures/Desert.png");
-		_textures.load(GEX::TextureID::Bullet, "Media/Media/Textures/Bullet.png");
-		_textures.load(GEX::TextureID::Missile, "Media/Media/Textures/Missile.png");
-		_textures.load(GEX::TextureID::FireRate, "Media/Media/Textures/FireRate.png");
-		_textures.load(GEX::TextureID::FireSpread, "Media/Media/Textures/FireSpread.png");
-		_textures.load(GEX::TextureID::MissileRefill, "Media/Media/Textures/MissileRefill.png");
-		_textures.load(GEX::TextureID::HealthRefill, "Media/Media/Textures/HealthRefill.png");
+		_textures.load(GEX::TextureID::Entities, "Media/Media/Textures/Entities.png");
+		_textures.load(GEX::TextureID::Jungle, "Media/Media/Textures/Jungle.png");
+		_textures.load(GEX::TextureID::Particle, "Media/Media/Textures/Particle.png");
+		_textures.load(GEX::TextureID::Explosion, "Media/Media/Textures/Explosion.png");
+		_textures.load(GEX::TextureID::FinishLine, "Media/Media/Textures/FinishLine.png");
+
 	}
 
 	void World::buildScene()
 	{
 		//initialize layers
 		for (int i = 0; i < LayerCount; i++) {
-			auto category = (i == Air) ? Category::Type::AirSceneLayer : Category::Type::None;
+			auto category = (i == UpperAir) ? Category::Type::AirSceneLayer : Category::Type::None;
 			SceneNode::Ptr layer(new SceneNode(category));
 			_sceneLayers.push_back(layer.get());
 			_sceneGraph.attachChild(std::move(layer));
 		}
 
+		//Particle systems
+		std::unique_ptr<ParticleNode> smoke(new ParticleNode(Particle::Type::Smoke, _textures));
+		_sceneLayers[LowerAir]->attachChild(std::move(smoke));
+		std::unique_ptr<ParticleNode> fire(new ParticleNode(Particle::Type::Propellant, _textures));
+		_sceneLayers[LowerAir]->attachChild(std::move(fire));
+
+		//add a finish line
+		//sf::Texture& finishTexture = _textures.get(TextureID::FinishLine);
+		//std::unique_ptr<SpriteNode> finishSprite(new SpriteNode(finishTexture));
+		//finishSprite->setPosition(0.f, -76.f);
+		//_sceneLayers[Background]->attachChild(std::move(finishSprite));
+
 		//draw background
-		sf::Texture& texture = _textures.get(TextureID::Desert);//get reference to texture
+		sf::Texture& texture = _textures.get(TextureID::Jungle);//get reference to texture
 		sf::IntRect textureRect(_worldBounds);
 		texture.setRepeated(true);//repeat the texture
 
@@ -377,7 +386,7 @@ namespace GEX {
 		leader->setPosition(_spawnPosition);
 		leader->setVelocity(0.f, _scrollSpeed);
 		_playerAircraft = leader.get();
-		_sceneLayers[Air]->attachChild(std::move(leader));
+		_sceneLayers[UpperAir]->attachChild(std::move(leader));
 
 		addEnemies();
 

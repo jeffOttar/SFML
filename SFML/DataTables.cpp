@@ -34,13 +34,14 @@ namespace GEX {
 	std::map<AircraftType, AircraftData> initializeAircraftData()
 	{
 		std::map<AircraftType, AircraftData> data;
-
+		
 		//player aircraft
 		data[AircraftType::Eagle].hitpoints = 100;
 		data[AircraftType::Eagle].speed = 200.f;
 		data[AircraftType::Eagle].fireInterval = sf::seconds(1);
 		data[AircraftType::Eagle].texture = TextureID::Entities;
 		data[AircraftType::Eagle].textureRect = sf::IntRect(0, 0, 48, 64);
+		data[AircraftType::Eagle].hasRollAnimation = true;
 
 		//non shooting enemy
 		data[AircraftType::Raptor].hitpoints = 20;
@@ -51,6 +52,7 @@ namespace GEX {
 		data[AircraftType::Raptor].directions.emplace_back(Direction(-45.f, 160.f));
 		data[AircraftType::Raptor].directions.emplace_back(Direction(45.f, 80.f));
 		data[AircraftType::Raptor].fireInterval = sf::Time::Zero;//never fires
+		data[AircraftType::Raptor].hasRollAnimation = false;
 
 		//shooting enemy
 		data[AircraftType::Avenger].hitpoints = 40;
@@ -63,6 +65,7 @@ namespace GEX {
 		data[AircraftType::Avenger].directions.emplace_back(Direction(0.f, 50.f));
 		data[AircraftType::Avenger].directions.emplace_back(Direction(45.f, 50.f));
 		data[AircraftType::Avenger].fireInterval = sf::seconds(2);
+		data[AircraftType::Avenger].hasRollAnimation = false;
 
 		return data;
 	}

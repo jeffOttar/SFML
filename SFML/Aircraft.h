@@ -35,6 +35,7 @@
 #include "Entity.h"
 #include "Command.h"
 #include "Projectile.h"
+#include "Animation.h"
 
 namespace GEX {
 	class TextNode;
@@ -68,6 +69,8 @@ namespace GEX {
 		sf::FloatRect		getBoundingBox() const override;
 		bool 				isMarkedForRemoval() const override;
 
+		void				remove() override;
+
 
 	protected:
 		void				updateCurrent(sf::Time dt, CommandQueue& commands) override;
@@ -89,6 +92,9 @@ namespace GEX {
 	private:
 		AircraftType		_type;
 		sf::Sprite			_sprite;
+		Animation			_explosion;
+		bool				_showExplosion;
+
 		TextNode*			_healthDisplay;
 		TextNode*			_missileDisplay;
 
@@ -110,5 +116,7 @@ namespace GEX {
 
 		bool				_isLaunchingMissile;
 		int					_missileAmmo;
+
+		bool				_spawnPickup;
 	};
 }

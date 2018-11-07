@@ -40,12 +40,12 @@
 //		_statisticsUpdateTime(sf::Time::Zero),
 //		_world(_window)
 //	{
-//		if (!_font.loadFromFile("Media/Media/Sansation.ttf"))
+//		if (!_font.loadFromFile("Media/Sansation.ttf"))
 //		{
 //			//error handling
 //		}
 //		else {
-//			_font.loadFromFile("Media/Media/Sansation.ttf");
+//			_font.loadFromFile("Media/Sansation.ttf");
 //		}
 //		_statisticsText.setFont(_font);
 //		_statisticsText.setPosition(5.f, 5.f);

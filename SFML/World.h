@@ -31,19 +31,21 @@
 #pragma once
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
 
 #include "SceneNode.h"
 #include "SpriteNode.h"
 #include "TextureManager.h"
 #include "Aircraft.h"
 #include "CommandQueue.h"
+#include "BloomEffect.h"
 
 #include <memory>
 #include <iostream>
 
 namespace sf
 {
-	class RenderWindow;
+	class RenderTarget;
 }
 namespace GEX {
 
@@ -51,7 +53,7 @@ namespace GEX {
 	class World
 	{
 	public:
-		World(sf::RenderWindow& window);
+		World(sf::RenderTarget& outputTarget);
 		void								update(sf::Time dt,CommandQueue& commands);
 		void								draw();
 
@@ -102,7 +104,8 @@ namespace GEX {
 
 
 	private:
-		sf::RenderWindow&					_window;//the order that they are declared in the .h is the order they are created in the initialization list
+		sf::RenderTarget&					_target;//the order that they are declared in the .h is the order they are created in the initialization list
+		sf::RenderTexture					_sceneTexture;
 		sf::View                            _worldView;
 		TextureManager                      _textures;
 
@@ -118,6 +121,8 @@ namespace GEX {
 		std::vector<SpawnPoint>				_enemySpawnPoints;
 
 		std::vector<Aircraft*>				_activeEnemies;
+
+		BloomEffect							_bloomEffect;
 	};
 
 }

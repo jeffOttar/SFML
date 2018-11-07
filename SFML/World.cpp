@@ -32,13 +32,15 @@
 #include "Pickup.h"
 #include "Projectile.h"
 #include "ParticleNode.h"
+#include "PostEffect.h"
+#include "BloomEffect.h"
 
 
 
 namespace GEX {
-	World::World(sf::RenderWindow& window) :
-		_window(window),
-		_worldView(window.getDefaultView()),
+	World::World(sf::RenderTarget& outputTarget) :
+		_target(outputTarget),
+		_worldView(outputTarget.getDefaultView()),
 		_textures(),
 		_sceneGraph(),
 		_sceneLayers(),
@@ -48,8 +50,11 @@ namespace GEX {
 		_playerAircraft(nullptr),
 		_enemySpawnPoints(),
 		_activeEnemies(),
-		_commandQueue()
+		_commandQueue(),
+		_bloomEffect()
 	{
+		_sceneTexture.create(_target.getSize().x, _target.getSize().y);
+
 		loadTextures();
 		buildScene();
 
@@ -320,8 +325,19 @@ namespace GEX {
 
 	void World::draw()
 	{
-		_window.setView(_worldView);
-		_window.draw(_sceneGraph);
+		if (PostEffect::isSupported())
+		{
+			//apply the effects
+			_sceneTexture.clear();
+			_sceneTexture.setView(_worldView);
+			_sceneTexture.draw(_sceneGraph);
+			_sceneTexture.display();
+			_bloomEffect.apply(_sceneTexture, _target);
+		}
+		else {
+			_target.setView(_worldView);
+			_target.draw(_sceneGraph);
+		}
 	}
 
 	CommandQueue & World::getCommandQueue()
@@ -341,11 +357,11 @@ namespace GEX {
 
 	void World::loadTextures()
 	{
-		_textures.load(GEX::TextureID::Entities, "Media/Media/Textures/Entities.png");
-		_textures.load(GEX::TextureID::Jungle, "Media/Media/Textures/Jungle.png");
-		_textures.load(GEX::TextureID::Particle, "Media/Media/Textures/Particle.png");
-		_textures.load(GEX::TextureID::Explosion, "Media/Media/Textures/Explosion.png");
-		_textures.load(GEX::TextureID::FinishLine, "Media/Media/Textures/FinishLine.png");
+		_textures.load(GEX::TextureID::Entities, "Media/Textures/Entities.png");
+		_textures.load(GEX::TextureID::Jungle, "Media/Textures/Jungle.png");
+		_textures.load(GEX::TextureID::Particle, "Media/Textures/Particle.png");
+		_textures.load(GEX::TextureID::Explosion, "Media/Textures/Explosion.png");
+		_textures.load(GEX::TextureID::FinishLine, "Media/Textures/FinishLine.png");
 
 	}
 

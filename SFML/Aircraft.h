@@ -71,6 +71,8 @@ namespace GEX {
 
 		void				remove() override;
 
+		void				updateRollAnimation();
+
 
 	protected:
 		void				updateCurrent(sf::Time dt, CommandQueue& commands) override;

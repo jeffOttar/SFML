@@ -191,6 +191,28 @@ namespace GEX {
 		Entity::remove();
 		_showExplosion = false;
 	}
+	void Aircraft::updateRollAnimation()
+	{
+		if (TABLE.at(_type).hasRollAnimation)
+		{
+			//default texture for no rolling
+			sf::IntRect textureRect = TABLE.at(_type).textureRect;
+
+			//rolling left move texture over one
+			if (getVelocity().x < 0.f)
+			{
+				textureRect.left += textureRect.width;
+			}
+
+			//rolling right move texture over 2
+			else if (getVelocity().x > 0.f)
+			{
+				textureRect.left += 2 * textureRect.width;
+			}
+
+			_sprite.setTextureRect(textureRect);
+		}
+	}
 	void Aircraft::updateCurrent(sf::Time dt, CommandQueue& commands)
 	{
 		updateMovementPattern(dt);
@@ -205,6 +227,7 @@ namespace GEX {
 
 		Entity::updateCurrent(dt,commands);
 		updateTexts();
+		updateRollAnimation();
 		checkProjectileLaunch(dt, commands);
 	}
 	void Aircraft::updateMovementPattern(sf::Time dt)

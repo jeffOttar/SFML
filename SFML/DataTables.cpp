@@ -120,13 +120,13 @@ namespace GEX {
 		std::map<Particle::Type, ParticleData> data;
 
 		//fire part has short lifetime and is composed of these colors
-		//data[Particle::Type::Propellant].color = sf::Color(255, 255, 50);
-		data[Particle::Type::Propellant].color = sf::Color(0, 0, 255);
+		data[Particle::Type::Propellant].color = sf::Color(255, 255, 50);
+		//data[Particle::Type::Propellant].color = sf::Color(0, 0, 255);
 		data[Particle::Type::Propellant].lifetime = sf::seconds(0.6f);
 
 		//smoke is grey and lasts 4 seconds
-		//data[Particle::Type::Smoke].color = sf::Color(50, 50, 50);
-		data[Particle::Type::Smoke].color = sf::Color(197, 179, 88);
+		data[Particle::Type::Smoke].color = sf::Color(50, 50, 50);
+		//data[Particle::Type::Smoke].color = sf::Color(197, 179, 88);
 		data[Particle::Type::Smoke].lifetime = sf::seconds(4.f);
 
 		return data;

@@ -52,11 +52,11 @@ _statisticsNumFrames(0)
 	//disable the ability to repeatedly press keys --> so missile cant be held down to repeatedly fire, you fire one per press
 	_window.setKeyRepeatEnabled(false);
 
-	GEX::FontManager::getInstance().load(GEX::FontID::Main,"Media/Media/Sansation.ttf");
+	GEX::FontManager::getInstance().load(GEX::FontID::Main,"Media/Sansation.ttf");
 	
-	_textures.load(GEX::TextureID::TitleScreen, "Media/Media/Textures/TitleScreen.png");//for small screen
-	//_textures.load(GEX::TextureID::TitleScreen, "Media/Media/Textures/TitleScreenBig.png");//for big screen
-	_textures.load(GEX::TextureID::Face, "Media/Media/Textures/face.png");//load face texture
+	_textures.load(GEX::TextureID::TitleScreen, "Media/Textures/TitleScreen.png");//for small screen
+	//_textures.load(GEX::TextureID::TitleScreen, "Media/Textures/TitleScreenBig.png");//for big screen
+	_textures.load(GEX::TextureID::Face, "Media/Textures/face.png");//load face texture
 
 	_statisticsText.setFont(GEX::FontManager::getInstance().get(GEX::FontID::Main));
 	_statisticsText.setPosition(5.f, 5.f);

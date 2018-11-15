@@ -38,6 +38,8 @@
 #include "PlayerControl.h"
 #include "TextureManager.h"
 #include "StateStack.h"
+#include "MusicPlayer.h"
+#include "SoundPlayer.h"
 
 class Application
 {
@@ -64,6 +66,8 @@ private:
 	sf::Font				_font;
 	GEX::TextureManager		_textures;
 	GEX::StateStack			_stateStack;//state stack needs the above objects so it must be declared afterwards
+	GEX::MusicPlayer		_music;
+	GEX::SoundPlayer		_sound;
 
 	sf::Text				_statisticsText;
 	sf::Time				_statisticsUpdateTime;

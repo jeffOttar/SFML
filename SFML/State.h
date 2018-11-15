@@ -35,6 +35,8 @@
 
 #include "TextureManager.h"
 #include "StateIdentifiers.h"
+#include "MusicPlayer.h"
+#include "SoundPlayer.h"
 
 #include <memory>
 
@@ -53,11 +55,15 @@ namespace GEX {
 			Context(
 				sf::RenderWindow&		window,
 				TextureManager&			textures,
-				PlayerControl&			player);
+				PlayerControl&			player,
+				MusicPlayer&            music,
+				SoundPlayer&			sound);
 
 			sf::RenderWindow*		window;
 			TextureManager*			textures;
 			PlayerControl*			player;
+			MusicPlayer*			music;
+			SoundPlayer*			sound;
 		};
 		
 	public:

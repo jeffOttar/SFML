@@ -39,6 +39,7 @@
 #include "Aircraft.h"
 #include "CommandQueue.h"
 #include "BloomEffect.h"
+#include "SoundPlayer.h"
 
 #include <memory>
 #include <iostream>
@@ -53,7 +54,7 @@ namespace GEX {
 	class World
 	{
 	public:
-		World(sf::RenderTarget& outputTarget);
+		World(sf::RenderTarget& outputTarget, SoundPlayer& sounds);
 		void								update(sf::Time dt,CommandQueue& commands);
 		void								draw();
 
@@ -78,6 +79,7 @@ namespace GEX {
 		void								handleCollisions();
 
 		void								destroyEntitiesOutOfView();
+		void								updateSounds();
 
 	private: 
 		enum Layer
@@ -108,6 +110,7 @@ namespace GEX {
 		sf::RenderTexture					_sceneTexture;
 		sf::View                            _worldView;
 		TextureManager                      _textures;
+		SoundPlayer&						_sounds;
 
 		SceneNode                           _sceneGraph;
 		std::vector<SceneNode*>				_sceneLayers;

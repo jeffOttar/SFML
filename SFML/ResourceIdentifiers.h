@@ -46,4 +46,23 @@ namespace GEX {
 	{
 		Main
 	};
+
+	enum class SoundEffectID
+	{
+		AlliedGunfire,
+		EnemyGunfire,
+		Explosion1,
+		Explosion2,
+		LaunchMissile,
+		CollectPickup,
+		Button
+	};
+
+	enum class MusicID
+	{
+	
+		MenuTheme,
+		MissionTheme,
+	};
+
 }

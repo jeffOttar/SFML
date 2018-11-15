@@ -44,7 +44,7 @@ Application::Application() : _window(sf::VideoMode(640, 480), "Killer Plane", sf
 _player(), 
 _font(),
 _textures(),
-_stateStack(GEX::State::Context(_window, _textures, _player)),
+_stateStack(GEX::State::Context(_window, _textures, _player,_music,_sound)),
 _statisticsText(),
 _statisticsUpdateTime(),
 _statisticsNumFrames(0)

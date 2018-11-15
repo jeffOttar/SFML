@@ -31,6 +31,7 @@
 #include "MenuState.h"
 #include "Utility.h"
 #include "FontManager.h"
+#include "ResourceIdentifiers.h"
 
 MenuState::MenuState(GEX::StateStack & stack, Context context) :
 	State(stack, context),
@@ -60,6 +61,8 @@ MenuState::MenuState(GEX::StateStack & stack, Context context) :
 
 	//this updates the display to show current selection
 	updateOptionText();
+
+	context.music->play(GEX::MusicID::MenuTheme);
 }
 
 void MenuState::draw()

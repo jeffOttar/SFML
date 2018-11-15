@@ -34,14 +34,15 @@
 #include "ParticleNode.h"
 #include "PostEffect.h"
 #include "BloomEffect.h"
-
+#include "SoundNode.h"
 
 
 namespace GEX {
-	World::World(sf::RenderTarget& outputTarget) :
+	World::World(sf::RenderTarget& outputTarget,SoundPlayer& sounds) :
 		_target(outputTarget),
 		_worldView(outputTarget.getDefaultView()),
 		_textures(),
+		_sounds(sounds),
 		_sceneGraph(),
 		_sceneLayers(),
 		_worldBounds(0.f, 0.f, _worldView.getSize().x, 5000.f),//left top width height
@@ -86,6 +87,7 @@ namespace GEX {
 		adaptPlayerPosition();
 
 		spawnEnemies();
+		updateSounds();
 	}
 
 	void World::adaptPlayerVelocity()
@@ -274,6 +276,8 @@ namespace GEX {
 				// Apply pickup effect to player, destroy projectile
 				pickup.apply(player);
 				pickup.destroy();
+
+				player.playLocalSound(_commandQueue, SoundEffectID::CollectPickup);
 			}
 			else if ((matchesCategories(pair, Category::Type::EnemyAircraft, Category::Type::AlliedProjectile))
 				|| (matchesCategories(pair, Category::Type::PlayerAircraft, Category::Type::EnemyProjectile)))
@@ -301,6 +305,12 @@ namespace GEX {
 		});
 
 		_commandQueue.push(command);
+	}
+
+	void World::updateSounds()
+	{
+		_sounds.setListenerPosition(_playerAircraft->getWorldPosition());
+		_sounds.removeStoppedSounds();
 	}
 
 
@@ -386,6 +396,10 @@ namespace GEX {
 		//std::unique_ptr<SpriteNode> finishSprite(new SpriteNode(finishTexture));
 		//finishSprite->setPosition(0.f, -76.f);
 		//_sceneLayers[Background]->attachChild(std::move(finishSprite));
+
+		//sound effects
+		std::unique_ptr<SoundNode> sNode(new SoundNode(_sounds));
+		_sceneGraph.attachChild(std::move(sNode));
 
 		//draw background
 		sf::Texture& texture = _textures.get(TextureID::Jungle);//get reference to texture

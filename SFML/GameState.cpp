@@ -30,12 +30,15 @@
 */
 #include "GameState.h"
 #include "CommandQueue.h"
+#include "ResourceIdentifiers.h"
 
 GameState::GameState(GEX::StateStack & stack, Context context) :
 	State(stack,context),
-	_world(*context.window),
+	_world(*context.window, *context.sound),
 	_player(*context.player)
-{}
+{
+	context.music->play(GEX::MusicID::MissionTheme);
+}
 
 void GameState::draw()
 {

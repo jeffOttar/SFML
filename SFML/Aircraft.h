@@ -60,6 +60,7 @@ namespace GEX {
 
 		void				fire();
 		void				launchMissile();
+		void				playLocalSound(CommandQueue& commands, SoundEffectID effect);
 
 		bool				isAllied() const;
 
@@ -104,6 +105,7 @@ namespace GEX {
 		std::size_t			_directionIndex;
 
 		bool				_isFiring;
+		bool				_hasPlayedExplosionSound;
 
 		int					_fireRateLevel;//fire 1 2 or 3 
 		int					_fireSpreadLevel;
